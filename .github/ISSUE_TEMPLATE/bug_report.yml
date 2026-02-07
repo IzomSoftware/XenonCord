@@ -1,0 +1,62 @@
+name: Bug or Problem inside XenonCord
+description: Create a bug report about a problem inside XenonCord.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        #### Report a bug inside XenonCord
+        Issues happening with XenonCord or Waterfall or BungeeCord can be discussed here.
+  - type: input
+    id: bungee-version
+    attributes:
+      label: XenonCord version
+      description: Current version of your XenonCord server
+      placeholder: e.g. 0.0.1
+    validations:
+      required: true
+  - type: input
+    id: server-version
+    attributes:
+      label: Server version
+      description: The output of the /version command (execute in server console for easy text copy)
+      placeholder: "e.g. git-Spigot-xxxxxxx-xxxxxxx (MC: 1.x.x)"
+  - type: input
+    id: client-version
+    attributes:
+      label: Client version
+      description: Minecraft Client Version
+      placeholder: e.g. 1.18.2
+  - type: textarea
+    id: bungee-plugins
+    attributes:
+      label: XenonCord plugins
+      description: Please list all XenonCord plugins you are using.
+    validations:
+      required: true
+  - type: textarea
+    id: the-bug
+    attributes:
+      label: The bug
+      description: Please describe the bug. Include **details** you find neccessary.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log output (links)
+      description: Please put your log output inbetween three backticks (```` ``` ````). Upload your log files to [gist.github.com](https://gist.github.com) and put them in here.
+      placeholder: |
+        ```
+        log output
+        ```
+  - type: checkboxes
+    id: checkboxes
+    attributes:
+      label: Checking
+      options:
+        - label: This problem is related to XenonCord! not plugins!
+          required: true
+        - label: This is a **issue**.
+          required: true
+        - label: I did not use this form to request a feature.
+          required: true
