@@ -21,8 +21,7 @@ Definitions
 
 1. “Organization” means Izom.Net Global.
 2. “You” means any individual or legal entity exercising rights under this license.
-3. “Project” means the software, including source code, object code, binaries,
-   libraries, and any derivative works thereof.
+3. “Project” means the software, including source code, object code, binaries, libraries, and any derivative works thereof.
 4. “Public Use or Distribution” means making the Project or any derivative
    available to third parties, whether directly or indirectly, including but not
    limited to:
@@ -41,7 +40,9 @@ General Terms
 A. You may not combine rights from both licenses.
 B. Any use of the Project must be authorized under one of the licenses below.
 C. Use of the Project outside the scope of an applicable license is unlicensed.
-D. Future License Updates: The Organization may modify or replace this license at any time. Any new version or terms of the license apply retroactively to all previous versions of the Project.
+D. Attribution: You may redistribute the Project with or without modification, but must include a notice attributing the Project to Izom.Net Global.
+E. Warranty Disclaimer: The Project is provided "as is," without warranty of any kind.
+F. Future License Updates: The Organization may modify or replace this license at any time. Any new version or terms of the license apply retroactively to all previous versions of the Project.
 
 ---
 
@@ -55,7 +56,7 @@ written notice from the Organization.
 
 ---
 
-First Alternative: Izom.Net Community License
+First Alternative: Izom.Net Non-Permissive Community License
 SPDX-License-Identifier: LicenseRef-IzomDotNet-NonPermissive-Community
 
 (Community, Open Distribution, and Non-Commercial Use)
@@ -106,7 +107,7 @@ DAMAGES ARISING OUT OF OR IN CONNECTION WITH THE USE OF THE PROJECT.
 Internal use by for-profit entities that does not involve Public Use or Distribution is permitted without source disclosure.
 ---
 
-Second Alternative: Izom.Net Commercial License
+Second Alternative: Izom.Net Non-Permissive Commercial License
 SPDX-License-Identifier: LicenseRef-IzomDotNet-NonPermissive-Commercial
 
 (Closed-Source, Hosted, or Commercial Use)
@@ -154,3 +155,4 @@ of such agreement, the laws of the Organization’s principal place of business.
 ---
 
 © Izom.Net Global. All rights reserved.
+
