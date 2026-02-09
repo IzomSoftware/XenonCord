@@ -1,20 +1,109 @@
 SPDX-License-Identifier: LicenseRef-IzomDotNet-NonPermissive-Dual
 
-Definitions:
-1. “Organization” means Izom.Net Global and its contributors.
-2. “You” means the licensee of this Project.
-3. “Project” means the software and associated files distributed by the Organization.
-4. “Internal Use” means use of the Project within your organization by employees or contractors, without external distribution.
-5. “Public Use or Distribution” means providing the Project or derivative works to third parties, including hosting as a service.
+Izom.Net Non-Permissive Dual License
+
+This Project is made available under one of the following two licenses.
+You must comply with the terms of exactly one license.
+
+---
+Summary (Non-Binding)
+
+- You may use this Project under one of two licenses: 
+  1. Community License: Source-available, non-commercial use only.
+  2. Commercial License: Closed-source, commercial, or hosted use requires a separate agreement.
+- Community License requires that any Public Use or Distribution makes complete source code available under the same license.
+- Internal for-profit use without distribution is allowed under the Community License.
+- This license is NOT OSI-approved.
+
+---
+
+Definitions
+
+1. “Organization” means Izom.Net Global.
+2. “You” means any individual or legal entity exercising rights under this license.
+3. “Project” means the software, including source code, object code, binaries,
+   libraries, and any derivative works thereof.
+4. “Public Use or Distribution” means making the Project or any derivative
+   available to third parties, whether directly or indirectly, including but not
+   limited to:
+   (a) public or customer-facing websites,
+   (b) hosted or managed services (including SaaS),
+   (c) commercial products or services,
+   (d) distribution to customers, partners, or affiliates.
+5. “Source-Available Distribution” means that the complete, corresponding
+   source code of the Project or derivative work is made publicly available,
+   at no charge, under this same license.
 
 ---
 
 General Terms
 
-A. Any use of the Project outside the scope of an applicable license is unlicensed.  
-B. Internal Use by for-profit entities is permitted without source disclosure, provided it does not constitute Public Use or Distribution.
-C. Future License Updates: The Organization may modify or replace this license at any time. Any new version or terms of the license apply retroactively to all previous versions of the Project.
+A. You may not combine rights from both licenses.
+B. Any use of the Project must be authorized under one of the licenses below.
+C. Use of the Project outside the scope of an applicable license is unlicensed.
+D. Future License Updates: The Organization may modify or replace this license at any time. Any new version or terms of the license apply retroactively to all previous versions of the Project.
 
+---
+
+Termination
+
+Any use outside the terms of the applicable license automatically terminates
+all rights granted to You.
+
+Rights may be reinstated if the violation is cured within thirty (30) days of
+written notice from the Organization.
+
+---
+
+First Alternative: Izom.Net Community License
+SPDX-License-Identifier: LicenseRef-IzomDotNet-NonPermissive-Community
+
+(Community, Open Distribution, and Non-Commercial Use)
+
+This license applies automatically if and only if all of the following are true:
+- Any Public Use or Distribution of the Project qualifies as a
+  Source-Available Distribution;
+- The Project is not used in a closed-source commercial product or service.
+
+1. Grant of Rights
+
+Subject to the terms of this license, the Organization grants You a worldwide,
+non-exclusive, royalty-free license to:
+- use, reproduce, and modify the Project;
+- create derivative works;
+- publicly use and distribute the Project and derivative works,
+  provided such use qualifies as a Source-Available Distribution.
+
+2. Source Availability Requirement
+
+For any Public Use or Distribution under this license, You must:
+- make the complete, corresponding source code of the Project or derivative
+  publicly available prior to or concurrently with such use or distribution;
+- license such source code under this same Izom.Net Community License;
+- include clear instructions on how to obtain the source code.
+
+3. Restrictions
+
+You must not, under this license:
+- use the Project in any closed-source or proprietary product or service;
+- impose additional licensing restrictions on recipients;
+- remove or obscure license or attribution notices.
+
+4. Attribution
+
+Any attribution, copyright notice, or license notice included with the Project
+must be retained and may not be removed or obscured.
+
+5. Warranty Disclaimer and Liability
+
+THE PROJECT IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE, AND NON-INFRINGEMENT.
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE ORGANIZATION SHALL NOT BE LIABLE FOR ANY
+DAMAGES ARISING OUT OF OR IN CONNECTION WITH THE USE OF THE PROJECT.
+
+Internal use by for-profit entities that does not involve Public Use or Distribution is permitted without source disclosure.
 ---
 
 Second Alternative: Izom.Net Commercial License
@@ -22,35 +111,46 @@ SPDX-License-Identifier: LicenseRef-IzomDotNet-NonPermissive-Commercial
 
 (Closed-Source, Hosted, or Commercial Use)
 
-Rights under the Commercial License are granted solely pursuant to a written agreement executed by the Organization and You.  
+If You wish to engage in Public Use or Distribution of the Project without
+meeting the Source-Available Distribution requirements, You must obtain a
+separate Commercial License from the Organization.
 
 1. Grant of Rights
-No rights for closed-source, proprietary, or restricted Public Use or Distribution are granted under this document without such an agreement.
+
+Rights under the Commercial License are granted solely pursuant to a written
+agreement executed by the Organization and You.
+
+No rights for closed-source, proprietary, or restricted Public Use or
+Distribution are granted under this document without such an agreement.
 
 2. Commercial Terms
+
 Commercial terms may include, without limitation:
-- license fees or other monetary consideration;  
-- attribution or branding obligations;  
+- license fees or other monetary consideration;
+- attribution or branding obligations;
 - additional rights or restrictions.
 
 All such terms must be expressly stated in the Commercial License agreement.
 
 3. Attribution
-Any attribution requirements for commercial use shall be governed exclusively by the Commercial License agreement.
 
----
-
-Warranty Disclaimer and Liability
-THE PROJECT IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  
-TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE ORGANIZATION SHALL NOT BE LIABLE FOR ANY DAMAGES ARISING OUT OF OR IN CONNECTION WITH THE USE OF THE PROJECT.
+Any attribution requirements for commercial use shall be governed exclusively
+by the Commercial License agreement.
 
 ---
 
 Reservation of Rights
+
 All rights not expressly granted to You are reserved by the Organization.
 
 ---
 
 Governing Law
 
+This license shall be governed by and construed in accordance with the laws
+specified in the applicable Commercial License agreement, or, in the absence
+of such agreement, the laws of the Organization’s principal place of business.
 
+---
+
+© Izom.Net Global. All rights reserved.
