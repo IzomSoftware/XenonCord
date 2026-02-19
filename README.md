@@ -18,13 +18,14 @@ XenonCord is a **fork of Waterfall**, which itself is a fork of **BungeeCord**. 
 
 ✅ **Lightweight & Optimized**  
 - Focused on **clean code** and **high performance** for seamless Minecraft server proxying.  
-
-✅ **Feature-Rich**  
-- Provides enhancements beyond vanilla **BungeeCord**, improving functionality and security.  
-
-✅ **Customizable**  
-- Enable or disable built-in features via a **simple configuration file**.  
-
+✅ **Security Suite**
+- **Captcha System**: Advanced map-based captcha to block automated bots.
+- **AntiProxy & VPN**: Real-time detection and blocking of known proxy and VPN services.
+- **Global Whitelist**: Efficiently bypass all security checks for trusted IPs and usernames.
+- **Account Limit**: Prevent alt-spam by limiting accounts per IP.
+- **IP Whitelist**: Restrict access to specific IP ranges or domains.
+✅ **Customizable**
+- Fully modular design—enable or disable any feature via `XenonCord.yml`.
 ✅ **Developer-Friendly**  
 - Fork, modify, and extend as needed—**open-source and easy to integrate**.  
 

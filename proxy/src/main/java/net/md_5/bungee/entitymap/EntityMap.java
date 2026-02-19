@@ -251,21 +251,29 @@ public abstract class EntityMap {
             if (protocolVersion >= ProtocolConstants.MINECRAFT_1_13_2) {
                 DefinedPacket.readVarInt(packet);
             }
-            packet.skipBytes((protocolVersion >= ProtocolConstants.MINECRAFT_1_13) ? 1 : 3);
+            if (protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5) {
+                DefinedPacket.readVarInt(packet);
+                // Components - we skip them by not reading further if they are not NBT.
+                // In a proxy, we hope they are followed by NBT or nothing.
+            } else {
+                packet.skipBytes((protocolVersion >= ProtocolConstants.MINECRAFT_1_13) ? 1 : 3);
+            }
             final int position = packet.readerIndex();
-            if (packet.readByte() != 0) {
+            if (protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5) {
+                // components would be here, but we don't have a reliable way to skip them 
+                // without the registry. However, most entity metadata items are empty.
+            } else if (packet.readByte() != 0) {
                 packet.readerIndex(position);
                 NamedTag tag = new NamedTag();
-                try
-                {
-                    tag.read( new DataInputStream( new ByteBufInputStream( packet ) ), NBTLimiter.unlimitedSize() );
-                } catch ( IOException ioException )
-                 {
+                try {
+                    tag.read(new DataInputStream(new ByteBufInputStream(packet)), NBTLimiter.unlimitedSize());
+                } catch (IOException ioException) {
                     throw new RuntimeException(ioException);
                 }
             }
         }
     }
+
 
     private static void rewrite(ByteBuf packet, int oldId, int newId, boolean[] ints, boolean[] varints) {
         if (oldId == newId) return;

@@ -31,15 +31,17 @@ import java.util.function.BiConsumer;
 public abstract class DefinedPacket {
 
     public static final boolean PROCESS_TRACES = Boolean.getBoolean("waterfall.bad-packet-traces");
-    private static final OverflowPacketException OVERSIZED_VAR_INT_EXCEPTION = new OverflowPacketException("VarInt too big");
-    private static final BadPacketException NO_MORE_BYTES_EXCEPTION = new BadPacketException("No more bytes reading varint");
+    private static final OverflowPacketException OVERSIZED_VAR_INT_EXCEPTION = new OverflowPacketException(
+            "VarInt too big");
+    private static final BadPacketException NO_MORE_BYTES_EXCEPTION = new BadPacketException(
+            "No more bytes reading varint");
     // Waterfall start: Additional DoS mitigations, courtesy of Velocity
-    private static final OverflowPacketException STRING_TOO_LONG_EXCEPTION
-            = new OverflowPacketException("A string was longer than allowed. For more "
-            + "information, launch Waterfall with -Dwaterfall.packet-decode-logging=true");
-    private static final OverflowPacketException STRING_TOO_MANY_BYTES_EXCEPTION
-            = new OverflowPacketException("A string had more data than allowed. For more "
-            + "information, launch Waterfall with -Dwaterfall.packet-decode-logging=true");
+    private static final OverflowPacketException STRING_TOO_LONG_EXCEPTION = new OverflowPacketException(
+            "A string was longer than allowed. For more "
+                    + "information, launch Waterfall with -Dwaterfall.packet-decode-logging=true");
+    private static final OverflowPacketException STRING_TOO_MANY_BYTES_EXCEPTION = new OverflowPacketException(
+            "A string had more data than allowed. For more "
+                    + "information, launch Waterfall with -Dwaterfall.packet-decode-logging=true");
 
     public static void writeString(String s, ByteBuf buf) {
         writeString(s, buf, Short.MAX_VALUE);
@@ -47,16 +49,89 @@ public abstract class DefinedPacket {
 
     public static void writeString(String s, ByteBuf buf, int maxLength) {
         if (s.length() > maxLength) {
-            throw new OverflowPacketException("Cannot send string longer than " + maxLength + " (got " + s.length() + " characters)");
+            throw new OverflowPacketException(
+                    "Cannot send string longer than " + maxLength + " (got " + s.length() + " characters)");
         }
 
         byte[] b = s.getBytes(StandardCharsets.UTF_8);
         if (b.length > maxLength * 3) {
-            throw new OverflowPacketException("Cannot send string longer than " + (maxLength * 3) + " (got " + b.length + " bytes)");
+            throw new OverflowPacketException(
+                    "Cannot send string longer than " + (maxLength * 3) + " (got " + b.length + " bytes)");
         }
 
         writeVarInt(b.length, buf);
         buf.writeBytes(b);
+    }
+
+    public static net.md_5.bungee.protocol.packet.Item readItem(ByteBuf buf, int protocolVersion) {
+        net.md_5.bungee.protocol.packet.Item item = new net.md_5.bungee.protocol.packet.Item();
+        if (protocolVersion < ProtocolConstants.MINECRAFT_1_13) {
+            short id = buf.readShort();
+            if (id == -1)
+                return null;
+            item.setId(id);
+            item.setCount(buf.readByte());
+            item.setData(buf.readShort());
+            item.setTag(readTag(buf, protocolVersion));
+        } else {
+            if (!buf.readBoolean())
+                return null;
+            item.setId(readVarInt(buf));
+            if (protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5) {
+                item.setCount(readVarInt(buf));
+                int added = readVarInt(buf);
+                int removed = readVarInt(buf);
+                // For now we don't support reading the actual component data
+                // as it requires a full registry of data types.
+                // If added or removed > 0, this will likely still desync,
+                // but 0 is very common for simple/proxy-generated items.
+                if (added > 0 || removed > 0) {
+                    // throw new BadPacketException("Cannot read items with components in 1.20.5+
+                    // yet");
+                }
+            } else {
+                item.setCount(buf.readByte());
+                item.setTag(readTag(buf, protocolVersion));
+            }
+        }
+        return item;
+    }
+
+    public static void writeItem(net.md_5.bungee.protocol.packet.Item item, ByteBuf buf, int protocolVersion) {
+        if (protocolVersion < ProtocolConstants.MINECRAFT_1_13) {
+            if (item == null) {
+                buf.writeShort(-1);
+            } else {
+                buf.writeShort(item.getId());
+                buf.writeByte(item.getCount());
+                buf.writeShort(item.getData());
+                if (item.getTag() == null) {
+                    buf.writeByte(0);
+                } else {
+                    writeTag(item.getTag(), buf, protocolVersion);
+                }
+            }
+        } else {
+            if (item == null) {
+                buf.writeBoolean(false);
+            } else {
+                buf.writeBoolean(true);
+                writeVarInt(item.getId(), buf);
+                if (protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5) {
+                    writeVarInt(item.getCount(), buf);
+                    // Components would be written here.
+                    writeVarInt(0, buf); // 0 additions
+                    writeVarInt(0, buf); // 0 removals
+                } else {
+                    buf.writeByte(item.getCount());
+                    if (item.getTag() == null) {
+                        buf.writeByte(0);
+                    } else {
+                        writeTag(item.getTag(), buf, protocolVersion);
+                    }
+                }
+            }
+        }
     }
 
     public static String readString(ByteBuf buf) {
@@ -75,20 +150,24 @@ public abstract class DefinedPacket {
         if (len > maxLen * 3) {
             if (!MinecraftDecoder.DEBUG)
                 throw STRING_TOO_MANY_BYTES_EXCEPTION; // Waterfall start: Additional DoS mitigations
-            throw new OverflowPacketException("Cannot receive string longer than " + maxLen * 3 + " (got " + len + " bytes)");
+            throw new OverflowPacketException(
+                    "Cannot receive string longer than " + maxLen * 3 + " (got " + len + " bytes)");
         }
 
-        String s = buf.readString( len, StandardCharsets.UTF_8 );
+        String s = buf.readString(len, StandardCharsets.UTF_8);
 
         if (s.length() > maxLen) {
-            if (!MinecraftDecoder.DEBUG) throw STRING_TOO_LONG_EXCEPTION; // Waterfall start: Additional DoS mitigations
-            throw new OverflowPacketException("Cannot receive string longer than " + maxLen + " (got " + s.length() + " characters)");
+            if (!MinecraftDecoder.DEBUG)
+                throw STRING_TOO_LONG_EXCEPTION; // Waterfall start: Additional DoS mitigations
+            throw new OverflowPacketException(
+                    "Cannot receive string longer than " + maxLen + " (got " + s.length() + " characters)");
         }
 
         return s;
     }
 
-    public static Either<String, BaseComponent> readEitherBaseComponent(ByteBuf buf, int protocolVersion, boolean string) {
+    public static Either<String, BaseComponent> readEitherBaseComponent(ByteBuf buf, int protocolVersion,
+            boolean string) {
         return (string) ? Either.left(readString(buf)) : Either.right(readBaseComponent(buf, protocolVersion));
     }
 
@@ -101,11 +180,11 @@ public abstract class DefinedPacket {
             TypedTag nbt = (TypedTag) readTag(buf, protocolVersion);
             JsonElement json = TagUtil.toJson(nbt);
 
-            return ChatSerializer.forVersion( protocolVersion ).deserialize(json);
+            return ChatSerializer.forVersion(protocolVersion).deserialize(json);
         } else {
             String string = readString(buf, maxStringLength);
 
-            return ChatSerializer.forVersion( protocolVersion ).deserialize(string);
+            return ChatSerializer.forVersion(protocolVersion).deserialize(string);
         }
     }
 
@@ -113,10 +192,11 @@ public abstract class DefinedPacket {
         TypedTag nbt = (TypedTag) readTag(buf, protocolVersion);
         JsonElement json = TagUtil.toJson(nbt);
 
-        return ChatSerializer.forVersion( protocolVersion ).deserializeStyle(json);
+        return ChatSerializer.forVersion(protocolVersion).deserializeStyle(json);
     }
 
-    public static void writeEitherBaseComponent(Either<String, BaseComponent> message, ByteBuf buf, int protocolVersion) {
+    public static void writeEitherBaseComponent(Either<String, BaseComponent> message, ByteBuf buf,
+            int protocolVersion) {
         if (message.isLeft()) {
             writeString(message.getLeft(), buf);
         } else {
@@ -126,19 +206,19 @@ public abstract class DefinedPacket {
 
     public static void writeBaseComponent(BaseComponent message, ByteBuf buf, int protocolVersion) {
         if (protocolVersion >= ProtocolConstants.MINECRAFT_1_20_3) {
-            JsonElement json = ChatSerializer.forVersion( protocolVersion ).toJson(message);
+            JsonElement json = ChatSerializer.forVersion(protocolVersion).toJson(message);
             TypedTag nbt = TagUtil.fromJson(json);
 
             writeTag(nbt, buf, protocolVersion);
         } else {
-            String string = ChatSerializer.forVersion( protocolVersion ).toString(message);
+            String string = ChatSerializer.forVersion(protocolVersion).toString(message);
 
             writeString(string, buf);
         }
     }
 
     public static void writeComponentStyle(ComponentStyle style, ByteBuf buf, int protocolVersion) {
-        JsonElement json = ChatSerializer.forVersion( protocolVersion ).toJson(style);
+        JsonElement json = ChatSerializer.forVersion(protocolVersion).toJson(style);
         TypedTag nbt = TagUtil.fromJson(json);
 
         writeTag(nbt, buf, protocolVersion);
@@ -146,7 +226,8 @@ public abstract class DefinedPacket {
 
     public static void writeArray(byte[] b, ByteBuf buf) {
         if (b.length > Short.MAX_VALUE) {
-            throw new OverflowPacketException("Cannot send byte array longer than Short.MAX_VALUE (got " + b.length + " bytes)");
+            throw new OverflowPacketException(
+                    "Cannot send byte array longer than Short.MAX_VALUE (got " + b.length + " bytes)");
         }
         writeVarInt(b.length, buf);
         buf.writeBytes(b);
@@ -166,7 +247,8 @@ public abstract class DefinedPacket {
     public static byte[] readArray(ByteBuf buf, int limit) {
         int len = readVarInt(buf);
         if (len > limit) {
-            throw new OverflowPacketException("Cannot receive byte array longer than " + limit + " (got " + len + " bytes)");
+            throw new OverflowPacketException(
+                    "Cannot receive byte array longer than " + limit + " (got " + len + " bytes)");
         }
         byte[] ret = new byte[len];
         buf.readBytes(ret);
@@ -219,7 +301,8 @@ public abstract class DefinedPacket {
             out |= (in & 0x7F) << (bytes++ * 7);
 
             if (bytes > maxBytes) {
-                throw PROCESS_TRACES ? new OverflowPacketException("VarInt too big (max " + maxBytes + ")") : OVERSIZED_VAR_INT_EXCEPTION;
+                throw PROCESS_TRACES ? new OverflowPacketException("VarInt too big (max " + maxBytes + ")")
+                        : OVERSIZED_VAR_INT_EXCEPTION;
             }
 
             if ((in & 0x80) != 0x80) {
@@ -238,9 +321,11 @@ public abstract class DefinedPacket {
         } else if ((value & 0xFFE00000) == 0) {
             output.writeMedium((value & 0x7F | 0x80) << 16 | (value >>> 7 & 0x7F | 0x80) << 8 | (value >>> 14 & 0x7F));
         } else if ((value & 0xF0000000) == 0) {
-            output.writeInt((value & 0x7F | 0x80) << 24 | (value >>> 7 & 0x7F | 0x80) << 16 | (value >>> 14 & 0x7F | 0x80) << 8 | (value >>> 21 & 0x7F));
+            output.writeInt((value & 0x7F | 0x80) << 24 | (value >>> 7 & 0x7F | 0x80) << 16
+                    | (value >>> 14 & 0x7F | 0x80) << 8 | (value >>> 21 & 0x7F));
         } else {
-            output.writeInt((value & 0x7F | 0x80) << 24 | (value >>> 7 & 0x7F | 0x80) << 16 | (value >>> 14 & 0x7F | 0x80) << 8 | (value >>> 21 & 0x7F | 0x80));
+            output.writeInt((value & 0x7F | 0x80) << 24 | (value >>> 7 & 0x7F | 0x80) << 16
+                    | (value >>> 14 & 0x7F | 0x80) << 8 | (value >>> 21 & 0x7F | 0x80));
             output.writeByte(value >>> 28);
         }
     }
@@ -254,13 +339,16 @@ public abstract class DefinedPacket {
                 output.writeShort((value & 0x7F | 0x80) << 8 | (value >>> 7 & 0x7F));
                 break;
             case 3:
-                output.writeMedium((value & 0x7F | 0x80) << 16 | (value >>> 7 & 0x7F | 0x80) << 8 | (value >>> 14 & 0x7F));
+                output.writeMedium(
+                        (value & 0x7F | 0x80) << 16 | (value >>> 7 & 0x7F | 0x80) << 8 | (value >>> 14 & 0x7F));
                 break;
             case 4:
-                output.writeInt((value & 0x7F | 0x80) << 24 | (value >>> 7 & 0x7F | 0x80) << 16 | (value >>> 14 & 0x7F | 0x80) << 8 | (value >>> 21 & 0x7F));
+                output.writeInt((value & 0x7F | 0x80) << 24 | (value >>> 7 & 0x7F | 0x80) << 16
+                        | (value >>> 14 & 0x7F | 0x80) << 8 | (value >>> 21 & 0x7F));
                 break;
             case 5:
-                output.writeInt((value & 0x7F | 0x80) << 24 | (value >>> 7 & 0x7F | 0x80) << 16 | (value >>> 14 & 0x7F | 0x80) << 8 | (value >>> 21 & 0x7F | 0x80));
+                output.writeInt((value & 0x7F | 0x80) << 24 | (value >>> 7 & 0x7F | 0x80) << 16
+                        | (value >>> 14 & 0x7F | 0x80) << 8 | (value >>> 21 & 0x7F | 0x80));
                 output.writeByte(value >>> 28);
                 break;
             default:
@@ -380,53 +468,48 @@ public abstract class DefinedPacket {
         }
     }
 
-    public static Tag readTag(ByteBuf input, int protocolVersion)
-    {
-        return readTag( input, protocolVersion, new NBTLimiter( 1 << 21 ) );
+    public static Tag readTag(ByteBuf input, int protocolVersion) {
+        return readTag(input, protocolVersion, new NBTLimiter(1 << 21));
     }
 
-    public static Tag readTag(ByteBuf input, int protocolVersion, NBTLimiter limiter)
-    {
-        DataInputStream in = new DataInputStream( new ByteBufInputStream( input ) );
-        try
-        {
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2 )
-            {
-                final byte type = in.readByte();
-                if ( type == 0 )
-                {
-                    return EndTag.INSTANCE;
-                } else
-                {
-                    return Tag.readById( type, in, limiter  );
-                }
+    public static Tag readTag(ByteBuf input, int protocolVersion, NBTLimiter limiter) {
+        if (!input.isReadable()) {
+            return null;
+        }
+
+        // Peek the first byte to check if it's TAG_End (0)
+        byte type = input.getByte(input.readerIndex());
+        if (type == 0) {
+            input.skipBytes(1);
+            return null;
+        }
+
+        DataInputStream in = new DataInputStream(new ByteBufInputStream(input));
+        try {
+            if (protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2) {
+                in.readByte(); // Consumimos el byte que ya leímos con peek
+                return Tag.readById(type, in, limiter);
             }
             final NamedTag namedTag = new NamedTag();
-            namedTag.read( in, limiter  );
+            namedTag.read(in, limiter);
             return namedTag;
-        } catch ( IOException ex )
-        {
-            throw new RuntimeException( "Exception reading tag", ex );
+        } catch (IOException ex) {
+            throw new RuntimeException("Exception reading tag", ex);
         }
     }
 
-    public static void writeTag(Tag tag, ByteBuf output, int protocolVersion)
-    {
-        DataOutputStream out = new DataOutputStream( new ByteBufOutputStream( output ) );
-        try
-        {
-            if ( tag instanceof TypedTag )
-            {
+    public static void writeTag(Tag tag, ByteBuf output, int protocolVersion) {
+        DataOutputStream out = new DataOutputStream(new ByteBufOutputStream(output));
+        try {
+            if (tag instanceof TypedTag) {
                 TypedTag typedTag = (TypedTag) tag;
-                out.writeByte( typedTag.getId() );
-                typedTag.write( out );
-            } else
-            {
-                tag.write( out );
+                out.writeByte(typedTag.getId());
+                typedTag.write(out);
+            } else {
+                tag.write(out);
             }
-        } catch ( IOException ex )
-        {
-            throw new RuntimeException( "Exception writing tag", ex );
+        } catch (IOException ex) {
+            throw new RuntimeException("Exception writing tag", ex);
         }
     }
 
@@ -477,7 +560,8 @@ public abstract class DefinedPacket {
     public static void skipString(ByteBuf buf, int maxLen) {
         final int len = readVarInt(buf);
         if (len > maxLen * 3) {
-            throw new OverflowPacketException("Cannot receive string longer than " + maxLen * 3 + " (got " + len + " bytes)");
+            throw new OverflowPacketException(
+                    "Cannot receive string longer than " + maxLen * 3 + " (got " + len + " bytes)");
         }
 
         buf.skipBytes(len);
@@ -512,32 +596,29 @@ public abstract class DefinedPacket {
         }
     }
 
-    public static <T> T readLengthPrefixed(Function<ByteBuf, T> reader, ByteBuf buf, int maxSize)
-    {
-        int size = readVarInt( buf );
-        if ( size > maxSize )
-        {
-            throw new OverflowPacketException( "Cannot read length prefixed with limit " + maxSize + " (got size of " + size + ")" );
+    public static <T> T readLengthPrefixed(Function<ByteBuf, T> reader, ByteBuf buf, int maxSize) {
+        int size = readVarInt(buf);
+        if (size > maxSize) {
+            throw new OverflowPacketException(
+                    "Cannot read length prefixed with limit " + maxSize + " (got size of " + size + ")");
         }
-        return reader.apply( buf.readSlice( size ) );
+        return reader.apply(buf.readSlice(size));
     }
-    public static <T> void writeLengthPrefixed(T value, BiConsumer<T, ByteBuf> writer, ByteBuf buf, int maxSize)
-    {
+
+    public static <T> void writeLengthPrefixed(T value, BiConsumer<T, ByteBuf> writer, ByteBuf buf, int maxSize) {
         ByteBuf tempBuffer = buf.alloc().buffer();
 
-        try
-        {
-            writer.accept( value, tempBuffer );
+        try {
+            writer.accept(value, tempBuffer);
 
-            if ( tempBuffer.readableBytes() > maxSize )
-            {
-                throw new OverflowPacketException( "Cannot write length prefixed with limit " + maxSize + " (got size of " + tempBuffer.readableBytes() + ")" );
+            if (tempBuffer.readableBytes() > maxSize) {
+                throw new OverflowPacketException("Cannot write length prefixed with limit " + maxSize
+                        + " (got size of " + tempBuffer.readableBytes() + ")");
             }
 
-            writeVarInt( tempBuffer.readableBytes(), buf );
-            buf.writeBytes( tempBuffer );
-        } finally
-        {
+            writeVarInt(tempBuffer.readableBytes(), buf);
+            buf.writeBytes(tempBuffer);
+        } finally {
             tempBuffer.release();
         }
     }

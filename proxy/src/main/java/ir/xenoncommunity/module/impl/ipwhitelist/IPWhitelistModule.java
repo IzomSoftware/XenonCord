@@ -27,7 +27,7 @@ public class IPWhitelistModule extends ModuleBase {
         getServer().getPluginManager().registerListener(null, this);
     }
 
-    private final boolean isDomainMode = XenonCore.instance.getConfigData().getModules().getIp_whitelist_module().getWhitelist_ip_mode().equals("DOMAIN");
+    private final boolean isDomainMode = XenonCore.instance.getConfigData().getModules().getIp_whitelist_module().getMode().equals("DOMAIN");
 
     /**
      * Handles the PlayerHandshakeEvent to enforce IP or domain whitelist rules.
@@ -47,7 +47,7 @@ public class IPWhitelistModule extends ModuleBase {
 
         // Check if the address is in the whitelist
         final boolean isWhitelisted = Arrays.stream(XenonCore.instance.getConfigData()
-                        .getModules().getIp_whitelist_module().getWhitelisted_ips())
+                        .getModules().getIp_whitelist_module().getList())
                 .map(String::trim)
                 .map(String::toLowerCase)
                 .anyMatch(address::equals);

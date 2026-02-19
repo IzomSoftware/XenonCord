@@ -1,5 +1,7 @@
 package ir.xenoncommunity.commands;
 
+import ir.xenoncommunity.utils.Language;
+import net.md_5.bungee.api.chat.TextComponent;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import net.md_5.bungee.api.*;
@@ -23,12 +25,12 @@ public class CommandSend extends Command implements TabExecutor {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (args.length != 2) {
-            sender.sendMessage(ProxyServer.getInstance().getTranslation("send_cmd_usage"));
+            sender.sendMessage(TextComponent.fromLegacyText(Language.get("send_cmd_usage")));
             return;
         }
         ServerInfo server = ProxyServer.getInstance().getServerInfo(args[1]);
         if (server == null) {
-            sender.sendMessage(ProxyServer.getInstance().getTranslation("no_server"));
+            sender.sendMessage(TextComponent.fromLegacyText(Language.get("server_not_found").replace("%server%", args[1])));
             return;
         }
 
@@ -37,7 +39,7 @@ public class CommandSend extends Command implements TabExecutor {
             targets = new ArrayList<>(ProxyServer.getInstance().getPlayers());
         } else if (args[0].equalsIgnoreCase("current")) {
             if (!(sender instanceof ProxiedPlayer)) {
-                sender.sendMessage(ProxyServer.getInstance().getTranslation("player_only"));
+                sender.sendMessage(TextComponent.fromLegacyText(Language.get("not_player")));
                 return;
             }
             ProxiedPlayer player = (ProxiedPlayer) sender;
@@ -50,7 +52,7 @@ public class CommandSend extends Command implements TabExecutor {
             } else {
                 ProxiedPlayer player = ProxyServer.getInstance().getPlayer(args[0]);
                 if (player == null) {
-                    sender.sendMessage(ProxyServer.getInstance().getTranslation("user_not_online"));
+                    sender.sendMessage(TextComponent.fromLegacyText(Language.get("player_not_found").replace("%player%", args[0])));
                     return;
                 }
                 targets = Collections.singletonList(player);
@@ -67,7 +69,7 @@ public class CommandSend extends Command implements TabExecutor {
             player.connect(request);
         }
 
-        sender.sendMessage(ChatColor.DARK_GREEN + "Attempting to send " + targets.size() + " players to " + server.getName());
+        sender.sendMessage(TextComponent.fromLegacyText(Language.get("send_attempt").replace("%count%", String.valueOf(targets.size())).replace("%server%", server.getName())));
     }
 
     @Override
@@ -115,7 +117,7 @@ public class CommandSend extends Command implements TabExecutor {
         }
 
         public void lastEntryDone() {
-            sender.sendMessage(ChatColor.GREEN.toString() + ChatColor.BOLD + "Send Results:");
+            sender.sendMessage(TextComponent.fromLegacyText(Language.get("send_results")));
             for (Map.Entry<ServerConnectRequest.Result, List<String>> entry : results.entrySet()) {
                 ComponentBuilder builder = new ComponentBuilder("");
                 if (!entry.getValue().isEmpty()) {
@@ -145,7 +147,7 @@ public class CommandSend extends Command implements TabExecutor {
             public void done(ServerConnectRequest.Result result, Throwable error) {
                 callback.results.get(result).add(player.getName());
                 if (result == ServerConnectRequest.Result.SUCCESS) {
-                    player.sendMessage(ProxyServer.getInstance().getTranslation("you_got_summoned", target.getName(), callback.sender.getName()));
+                    player.sendMessage(TextComponent.fromLegacyText(Language.get("you_got_summoned").replace("%server%", target.getName()).replace("%player%", callback.sender.getName())));
                 }
 
                 if (--callback.count == 0) {

@@ -1,7 +1,6 @@
 package net.md_5.bungee.api.connection;
 
 import net.md_5.bungee.api.config.ListenerInfo;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.net.InetSocketAddress;
 import java.util.UUID;

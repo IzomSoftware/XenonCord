@@ -50,7 +50,7 @@ public enum VelocityForwardingUtil {
             mac.init(key);
             mac.update(buf.array(), buf.arrayOffset(), buf.readableBytes());
             byte[] sig = mac.doFinal();
-
+            
             ByteBuf finished = Unpooled.wrappedBuffer(Unpooled.wrappedBuffer(sig), buf);
             byte[] encoded = ByteBufUtil.getBytes(finished);
             finished.release();
@@ -59,7 +59,6 @@ public enum VelocityForwardingUtil {
             buf.release();
             throw new RuntimeException("Unable to authenticate data", e);
         } catch (NoSuchAlgorithmException e) {
-            // Should never happen
             buf.release();
             throw new AssertionError(e);
         }

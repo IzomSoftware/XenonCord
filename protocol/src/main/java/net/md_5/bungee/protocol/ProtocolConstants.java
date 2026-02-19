@@ -52,6 +52,8 @@ public class ProtocolConstants {
     public static final int MINECRAFT_1_21_7 = 772;
     public static final int MINECRAFT_1_21_9 = 773;
     public static final int MINECRAFT_1_21_11 = 774;
+    public static final int MINECRAFT_26_1 = 1073742111;
+    
     public static final List<String> SUPPORTED_VERSIONS;
     public static final List<Integer> SUPPORTED_VERSION_IDS;
     private static final boolean SNAPSHOT_SUPPORT = Boolean.getBoolean("net.md_5.bungee.protocol.snapshot");

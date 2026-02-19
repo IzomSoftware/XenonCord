@@ -35,7 +35,9 @@ public class XenonCore {
         this.logger = LogManager.getLogger(this.getClass().getSimpleName());
         this.taskManager = new TaskManager();
         this.bungeeInstance = BungeeCord.getInstance();
-        this.configuration = new Configuration();
+        configuration = new Configuration();
+        configData = configuration.init();
+        Language.init();
         final StringBuilder sb = new StringBuilder();
         try {
             HttpClient.get(new URL("https://api.github.com/repos/SyNdicateFoundation/XenonCord/releases/latest")).get().forEach(

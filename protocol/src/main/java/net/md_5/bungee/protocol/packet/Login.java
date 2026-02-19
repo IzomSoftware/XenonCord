@@ -70,7 +70,8 @@ public class Login extends DefinedPacket {
         }
 
         if (protocolVersion >= ProtocolConstants.MINECRAFT_1_16) {
-            if (protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2 && protocolVersion < ProtocolConstants.MINECRAFT_1_19) {
+            if (protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2
+                    && protocolVersion < ProtocolConstants.MINECRAFT_1_19) {
                 dimension = readTag(buf, protocolVersion);
             } else if (protocolVersion < ProtocolConstants.MINECRAFT_1_20_2) {
                 dimension = readString(buf);
@@ -83,7 +84,8 @@ public class Login extends DefinedPacket {
         } else {
             dimension = (int) buf.readByte();
         }
-        if (protocolVersion >= ProtocolConstants.MINECRAFT_1_15 && protocolVersion < ProtocolConstants.MINECRAFT_1_20_2) {
+        if (protocolVersion >= ProtocolConstants.MINECRAFT_1_15
+                && protocolVersion < ProtocolConstants.MINECRAFT_1_20_2) {
             seed = buf.readLong();
         }
         if (protocolVersion < ProtocolConstants.MINECRAFT_1_14) {
@@ -166,7 +168,8 @@ public class Login extends DefinedPacket {
         }
 
         if (protocolVersion >= ProtocolConstants.MINECRAFT_1_16) {
-            if (protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2 && protocolVersion < ProtocolConstants.MINECRAFT_1_19) {
+            if (protocolVersion >= ProtocolConstants.MINECRAFT_1_16_2
+                    && protocolVersion < ProtocolConstants.MINECRAFT_1_19) {
                 writeTag((Tag) dimension, buf, protocolVersion);
             } else if (protocolVersion < ProtocolConstants.MINECRAFT_1_20_2) {
                 writeString((String) dimension, buf);
@@ -210,7 +213,7 @@ public class Login extends DefinedPacket {
         if (protocolVersion >= ProtocolConstants.MINECRAFT_1_20_2) {
             buf.writeBoolean(limitedCrafting);
             if (protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5) {
-                writeVarInt((Integer) dimension, buf);
+                writeVarInt((dimension instanceof Integer) ? (Integer) dimension : 0, buf);
             } else {
                 writeString((String) dimension, buf);
             }

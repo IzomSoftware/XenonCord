@@ -140,6 +140,9 @@ public abstract class AbstractPacketHandler {
 
     public void handle(FinishConfiguration finishConfiguration) throws Exception {
     }
+    
+    public void handle(MapData mapData) throws Exception {
+    }
 
     public void handle(Transfer transfer) throws Exception {
     }
@@ -183,5 +186,11 @@ public abstract class AbstractPacketHandler {
     }
     public void handle(ShowDialogDirect showDialogDirect) throws Exception
     {
+    }
+    public void handle(PlayerPositionAndLook position) throws Exception {
+    }
+    public void handle(SetSlot setSlot) throws Exception {
+    }
+    public void handle(WindowItems windowItems) throws Exception {
     }
 }

@@ -129,7 +129,12 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter {
 
             if (logExceptions) {
                 if (cause instanceof ReadTimeoutException) {
-                    ProxyServer.getInstance().getLogger().log(Level.WARNING, "{0} - read timed out", handler);
+                    if (ir.xenoncommunity.XenonCore.instance.getConfigData().isDebug()) {
+                        ProxyServer.getInstance().getLogger().log(Level.WARNING, "{0} - read timed out from {1}. State: {2}", new Object[]{
+                                handler, channel.getRemoteAddress(), handler.getClass().getSimpleName()});
+                    } else {
+                        ProxyServer.getInstance().getLogger().log(Level.WARNING, "{0} - read timed out", handler);
+                    }
                 } else if (cause instanceof WriteTimeoutException)
                 {
                     ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - write timed out", handler );

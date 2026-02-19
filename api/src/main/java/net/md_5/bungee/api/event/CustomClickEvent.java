@@ -1,7 +1,5 @@
 package net.md_5.bungee.api.event;
 
-import java.util.Map;
-
 import com.google.gson.JsonElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -1,10 +1,15 @@
 package ir.xenoncommunity.commands;
 
+import ir.xenoncommunity.utils.Language;
+import net.md_5.bungee.api.chat.TextComponent;
+import ir.xenoncommunity.utils.Language;
+import net.md_5.bungee.api.chat.TextComponent;
 import ir.xenoncommunity.XenonCore;
 import ir.xenoncommunity.utils.Message;
+import ir.xenoncommunity.module.impl.gui.GuiModule;
+import ir.xenoncommunity.module.impl.security.BlacklistModule;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +24,7 @@ public class CommandXenonCord extends Command {
 
     public void execute(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            Message.send(sender, "&7This server is using &b&lXenonCord &7Version " + XenonCore.instance.getVersion() + " &r&7by &fRealStresser.&7\nPlease, report bugs on:\nhttps://github.com/SyNdicateFoundation/XenonCord", false);
+            Message.send(sender, Language.get("xenoncord_info").replace("%version%", XenonCore.instance.getVersion()), false);
             return;
         }
 
@@ -29,6 +34,16 @@ public class CommandXenonCord extends Command {
                 Message.send(sender, XenonCore.instance.getConfigData().getReload_message(), true);
                 XenonCore.instance.setConfigData(XenonCore.instance.getConfiguration().init());
                 Message.send(sender, XenonCore.instance.getConfigData().getReload_complete_message(), true);
+                break;
+            case "gui":
+                if (!sender.hasPermission(XenonCore.instance.getConfigData().getGui_permission())) return;
+                GuiModule guiModule = GuiModule.instance;
+                
+                if (guiModule == null || !XenonCore.instance.getConfigData().getModules().getGui_module().isEnabled()) {
+                    Message.send(sender, Language.get("gui_disabled"), true);
+                    return;
+                }
+                guiModule.toggleGUI(sender);
                 break;
         }
     }
