@@ -12,6 +12,8 @@ build.xml
 
 # maven
 target/
+*/target/
+*/*/target/
 dependency-reduced-pom.xml
 
 # vim
@@ -39,3 +41,5 @@ manifest.mf
 */src/main/lombok
 
 .vscode
+
+XenonCord.jar
