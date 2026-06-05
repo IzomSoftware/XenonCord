@@ -53,20 +53,22 @@ public class UpstreamBridge extends PacketHandler {
         con.getTabListHandler().onDisconnect();
         BungeeCord.getInstance().removeConnection(con);
 
-        if ( con.getServer() != null )
-            con.getServer().disconnect( "Quitting" );
+        if (con.getServer() != null)
+            con.getServer().disconnect("Quitting");
     }
 
     @Override
     public void writabilityChanged(ChannelWrapper channel) {
-        if (con.getServer() == null) return;
+        if (con.getServer() == null)
+            return;
 
         con.getServer().getCh().getHandle().config().setAutoRead(channel.getHandle().isWritable());
     }
 
     @Override
     public boolean shouldHandle(PacketWrapper packet) {
-        return con.getServer() != null || packet.packet instanceof PluginMessage || packet.packet instanceof CookieResponse || packet.packet instanceof LoginPayloadResponse;
+        return con.getServer() != null || packet.packet instanceof PluginMessage
+                || packet.packet instanceof CookieResponse || packet.packet instanceof LoginPayloadResponse;
     }
 
     @Override
@@ -84,7 +86,8 @@ public class UpstreamBridge extends PacketHandler {
 
             EntityMap rewrite = con.getEntityRewrite();
             if (rewrite != null && serverEncode == Protocol.GAME)
-                rewrite.rewriteServerbound(packet.buf, con.getClientEntityId(), con.getServerEntityId(), con.getPendingConnection().getVersion());
+                rewrite.rewriteServerbound(packet.buf, con.getClientEntityId(), con.getServerEntityId(),
+                        con.getPendingConnection().getVersion());
 
             server.getCh().write(packet);
         }
@@ -95,7 +98,8 @@ public class UpstreamBridge extends PacketHandler {
         KeepAliveData keepAliveData = con.getServer().getKeepAlives().peek();
 
         if (keepAliveData != null && alive.getRandomId() == keepAliveData.getId()) {
-            Preconditions.checkState(keepAliveData == con.getServer().getKeepAlives().poll(), "keepalive queue mismatch");
+            Preconditions.checkState(keepAliveData == con.getServer().getKeepAlives().poll(),
+                    "keepalive queue mismatch");
             int newPing = (int) (System.currentTimeMillis() - keepAliveData.getTime());
             con.getTabListHandler().onPingChange(newPing);
             con.setPing(newPing);
@@ -156,15 +160,17 @@ public class UpstreamBridge extends PacketHandler {
             }
         });
 
-
         ChatEvent chatEvent = new ChatEvent(con, con.getServer(), message);
         if (!bungee.getPluginManager().callEvent(chatEvent).isCancelled()) {
             message = chatEvent.getMessage();
             if (!chatEvent.isCommand() || !bungee.getPluginManager().dispatchCommand(con, message.substring(1))) {
                 return message;
-                // Waterfall start - We're going to cancel this packet, so, no matter what, we might as well try to send this
-            } else if (clientCommand != null && clientCommand.isSigned() && clientCommand.getSeenMessages() != null && con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19_3) {
-                con.getServer().unsafe().sendPacket(new net.md_5.bungee.protocol.packet.ClientChatAcknowledgement(clientCommand.getSeenMessages().getOffset()));
+                // Waterfall start - We're going to cancel this packet, so, no matter what, we
+                // might as well try to send this
+            } else if (clientCommand != null && clientCommand.isSigned() && clientCommand.getSeenMessages() != null
+                    && con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19_3) {
+                con.getServer().unsafe().sendPacket(new net.md_5.bungee.protocol.packet.ClientChatAcknowledgement(
+                        clientCommand.getSeenMessages().getOffset()));
                 // Waterfall end
             }
         }
@@ -190,9 +196,11 @@ public class UpstreamBridge extends PacketHandler {
         boolean isCommand = tabComplete.getCursor().startsWith("/");
 
         if (isCommand)
-            isRegisteredCommand = bungee.getPluginManager().dispatchCommand(con, tabComplete.getCursor().substring(1), suggestions);
+            isRegisteredCommand = bungee.getPluginManager().dispatchCommand(con, tabComplete.getCursor().substring(1),
+                    suggestions);
 
-        TabCompleteEvent tabCompleteEvent = new TabCompleteEvent(con, con.getServer(), tabComplete.getCursor(), suggestions);
+        TabCompleteEvent tabCompleteEvent = new TabCompleteEvent(con, con.getServer(), tabComplete.getCursor(),
+                suggestions);
         bungee.getPluginManager().callEvent(tabCompleteEvent);
 
         if (tabCompleteEvent.isCancelled())
@@ -201,7 +209,8 @@ public class UpstreamBridge extends PacketHandler {
         XenonCore.instance.getTaskManager().add(() -> {
             List<String> results = tabCompleteEvent.getSuggestions();
             if (!results.isEmpty()) {
-                // Unclear how to handle 1.13 commands at this point. Because we don't inject into the command packets we are unlikely to get this far unless
+                // Unclear how to handle 1.13 commands at this point. Because we don't inject
+                // into the command packets we are unlikely to get this far unless
                 // Bungee plugins are adding results for commands they don't own anyway
                 if (con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_13) {
                     con.unsafe().sendPacket(new TabCompleteResponse(results));
@@ -215,7 +224,8 @@ public class UpstreamBridge extends PacketHandler {
                         brigadier.add(new Suggestion(range, s));
                     }
 
-                    con.unsafe().sendPacket(new TabCompleteResponse(tabComplete.getTransactionId(), new Suggestions(range, brigadier)));
+                    con.unsafe().sendPacket(
+                            new TabCompleteResponse(tabComplete.getTransactionId(), new Suggestions(range, brigadier)));
                 }
                 throw CancelSendSignal.INSTANCE;
             }
@@ -239,7 +249,8 @@ public class UpstreamBridge extends PacketHandler {
 
     @Override
     public void handle(PluginMessage pluginMessage) throws Exception {
-        if (pluginMessage.getTag().equals(PluginMessage.BUNGEE_CHANNEL_LEGACY) || pluginMessage.getTag().equals(PluginMessage.BUNGEE_CHANNEL_MODERN)) {
+        if (pluginMessage.getTag().equals(PluginMessage.BUNGEE_CHANNEL_LEGACY)
+                || pluginMessage.getTag().equals(PluginMessage.BUNGEE_CHANNEL_MODERN)) {
             throw CancelSendSignal.INSTANCE;
         }
 
@@ -256,14 +267,19 @@ public class UpstreamBridge extends PacketHandler {
                 throw CancelSendSignal.INSTANCE;
             }
 
-            if (con.getServer() != null && !con.getServer().isForgeServer() && pluginMessage.getData().length > Short.MAX_VALUE) {
-                // Drop the packet if the server is not a Forge server and the message was > 32kiB (as suggested by @jk-5)
-                // Do this AFTER the mod list, so we get that even if the intial server isn't modded.
+            if (con.getServer() != null && !con.getServer().isForgeServer()
+                    && pluginMessage.getData().length > Short.MAX_VALUE) {
+                // Drop the packet if the server is not a Forge server and the message was >
+                // 32kiB (as suggested by @jk-5)
+                // Do this AFTER the mod list, so we get that even if the intial server isn't
+                // modded.
                 throw CancelSendSignal.INSTANCE;
             }
         }
 
-        if (bungee.getPluginManager().callEvent(new PluginMessageEvent(con, con.getServer(), pluginMessage.getTag(), pluginMessage.getData().clone())).isCancelled()) {
+        if (bungee.getPluginManager().callEvent(
+                new PluginMessageEvent(con, con.getServer(), pluginMessage.getTag(), pluginMessage.getData().clone()))
+                .isCancelled()) {
             throw CancelSendSignal.INSTANCE;
         }
 
@@ -272,6 +288,7 @@ public class UpstreamBridge extends PacketHandler {
 
     @Override
     public void handle(LoginAcknowledged loginAcknowledged) throws Exception {
+        con.getServer().setFirstLogin(true);
         configureServer();
     }
 
@@ -287,7 +304,15 @@ public class UpstreamBridge extends PacketHandler {
             ch.write(new LoginAcknowledged());
             ch.setEncodeProtocol(Protocol.CONFIGURATION);
 
-            ch.write( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
+            ch.write(BungeeCord.getInstance().registerChannels(con.getPendingConnection().getVersion()));
+
+            if (con.getSettings() != null && (!con.isDisableEntityMetadataRewrite()
+                    || con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2)) {
+                ch.write(con.getSettings());
+            }
+            if (con.getPendingConnection().getBrandMessage() != null) {
+                ch.write(con.getPendingConnection().getBrandMessage());
+            }
 
             con.getServer().sendQueuedPackets();
 
@@ -301,11 +326,10 @@ public class UpstreamBridge extends PacketHandler {
     }
 
     @Override
-    public void handle(CustomClickAction customClickAction) throws Exception
-    {
-        CustomClickEvent event = new CustomClickEvent( con, customClickAction.getId(), TagUtil.toJson( customClickAction.getData() ) );
-        if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
-        {
+    public void handle(CustomClickAction customClickAction) throws Exception {
+        CustomClickEvent event = new CustomClickEvent(con, customClickAction.getId(),
+                TagUtil.toJson(customClickAction.getData()));
+        if (bungee.getPluginManager().callEvent(event).isCancelled()) {
             throw CancelSendSignal.INSTANCE;
         }
     }

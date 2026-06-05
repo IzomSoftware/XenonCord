@@ -184,6 +184,9 @@ public abstract class AbstractPacketHandler {
     public void handle(BundleDelimiter bundleDelimiter) throws Exception
     {
     }
+    public void handle(KnownPacks knownPacks) throws Exception
+    {
+    }
     public void handle(ShowDialogDirect showDialogDirect) throws Exception
     {
     }

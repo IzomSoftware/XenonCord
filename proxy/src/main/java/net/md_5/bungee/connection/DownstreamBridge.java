@@ -58,8 +58,10 @@ public class DownstreamBridge extends PacketHandler {
 
     public static final Map<Connection, Long> PACKET_USAGE = new ConcurrentHashMap<>();
     public static final Map<Connection, AtomicInteger> CHANNELS_REGISTERED = new ConcurrentHashMap<>();
-    // #3246: Recent versions of MinecraftForge alter Vanilla behaviour and require a command so that the executable flag is set
-    // If the flag is not set, then the command will appear and successfully tab complete, but cannot be successfully executed
+    // #3246: Recent versions of MinecraftForge alter Vanilla behaviour and require
+    // a command so that the executable flag is set
+    // If the flag is not set, then the command will appear and successfully tab
+    // complete, but cannot be successfully executed
     private static final com.mojang.brigadier.Command DUMMY_COMMAND = (context) -> 0;
     //
     private final ProxyServer bungee;
@@ -78,21 +80,20 @@ public class DownstreamBridge extends PacketHandler {
         if (def != null) {
             server.setObsolete(true);
             Callback<ServerConnectRequest.Result> callback = (result, error) -> {
-                if ( result == ServerConnectRequest.Result.SUCCESS )
-                {
-                    con.sendMessage( bungee.getTranslation( "server_went_down", server.getInfo().getName(), def.getName() ) );
-                } else
-                {
-                    con.disconnect( Util.exception( t ) );
+                if (result == ServerConnectRequest.Result.SUCCESS) {
+                    con.sendMessage(
+                            bungee.getTranslation("server_went_down", server.getInfo().getName(), def.getName()));
+                } else {
+                    con.disconnect(Util.exception(t));
                 }
             };
-            con.connect( ServerConnectRequest.builder()
-                    .callback( callback )
-                    .retry( false )
-                    .reason( ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT )
-                    .target( def )
-                    .build() );
-            con.setDimensionChange( true ); // NOTE: Dim Change Connect
+            con.connect(ServerConnectRequest.builder()
+                    .callback(callback)
+                    .retry(false)
+                    .reason(ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT)
+                    .target(def)
+                    .build());
+            con.setDimensionChange(true); // NOTE: Dim Change Connect
         } else {
             con.disconnect(Util.exception(t));
         }
@@ -131,7 +132,8 @@ public class DownstreamBridge extends PacketHandler {
     public void handle(PacketWrapper packet) throws Exception {
         final EntityMap rewrite = con.getEntityRewrite();
         if (rewrite != null && con.getCh().getEncodeProtocol() == Protocol.GAME) {
-            rewrite.rewriteClientbound(packet.buf, con.getServerEntityId(), con.getClientEntityId(), con.getPendingConnection().getVersion());
+            rewrite.rewriteClientbound(packet.buf, con.getServerEntityId(), con.getClientEntityId(),
+                    con.getPendingConnection().getVersion());
         }
         con.sendPacket(packet);
     }
@@ -139,15 +141,28 @@ public class DownstreamBridge extends PacketHandler {
     @Override
     public void handle(KeepAlive alive) throws Exception {
         final int timeout = bungee.getConfig().getTimeout();
-        if (timeout <= 0 || server.getKeepAlives().size() < timeout / 50) // Some people disable timeout, otherwise allow a theoretical maximum of 1 keepalive per tick
+        if (timeout <= 0 || server.getKeepAlives().size() < timeout / 50) // Some people disable timeout, otherwise
+                                                                          // allow a theoretical maximum of 1 keepalive
+                                                                          // per tick
         {
             server.getKeepAlives().add(new KeepAliveData(alive.getRandomId(), System.currentTimeMillis()));
         }
+
+        // In 1.20.2 the server can enter game phase and send KeepAlive to the client
+        // while the client is still config phase,
+        // resulting in clientside exceptions because of different packet ids.
+        // To fix this, we don't forward the ByteBuf and just send the packet manually.
+        // I think the reason for that is that in 1.20.2 the server does not wait for
+        // any responses of the client
+        // in config phase, so it directly send finish config enters game and then waits
+        // for client and sends KeepAlive.
+        con.unsafe().sendPacket(alive);
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
     public void handle(PlayerListItem playerList) throws Exception {
-        //Waterfall start
+        // Waterfall start
         final boolean skipRewrites = bungee.getConfig().isDisableTabListRewrite();
         con.getTabListHandler().onUpdate(skipRewrites ? playerList : TabList.rewrite(playerList));
         if (!skipRewrites) {
@@ -173,7 +188,10 @@ public class DownstreamBridge extends PacketHandler {
         final Scoreboard serverScoreboard = con.getServerSentScoreboard();
         switch (objective.getAction()) {
             case 0:
-                serverScoreboard.addObjective(new Objective(objective.getName(), (objective.getValue().isLeft()) ? objective.getValue().getLeft() : con.getChatSerializer().toString(objective.getValue().getRight()), objective.getType().toString()));
+                serverScoreboard.addObjective(new Objective(objective.getName(),
+                        (objective.getValue().isLeft()) ? objective.getValue().getLeft()
+                                : con.getChatSerializer().toString(objective.getValue().getRight()),
+                        objective.getType().toString()));
                 break;
             case 1:
                 serverScoreboard.removeObjective(objective.getName());
@@ -181,7 +199,8 @@ public class DownstreamBridge extends PacketHandler {
             case 2:
                 Objective oldObjective = serverScoreboard.getObjective(objective.getName());
                 if (oldObjective != null) {
-                    oldObjective.setValue((objective.getValue().isLeft()) ? objective.getValue().getLeft() : con.getChatSerializer().toString(objective.getValue().getRight()));
+                    oldObjective.setValue((objective.getValue().isLeft()) ? objective.getValue().getLeft()
+                            : con.getChatSerializer().toString(objective.getValue().getRight()));
                     oldObjective.setType(objective.getType().toString());
                 }
                 break;
@@ -208,7 +227,8 @@ public class DownstreamBridge extends PacketHandler {
 
     @Override
     public void handle(ScoreboardScoreReset scoreboardScoreReset) throws Exception {
-        // TODO: Expand score API to handle objective values. Shouldn't matter currently as only used for removing score entries.
+        // TODO: Expand score API to handle objective values. Shouldn't matter currently
+        // as only used for removing score entries.
         if (scoreboardScoreReset.getScoreName() == null) {
             con.getServerSentScoreboard().removeScore(scoreboardScoreReset.getItemName());
         }
@@ -239,16 +259,20 @@ public class DownstreamBridge extends PacketHandler {
             t = serverScoreboard.getTeam(team.getName());
         }
 
-        if (t == null) return;
+        if (t == null)
+            return;
 
         if (team.getMode() == 0 || team.getMode() == 2) {
-            t.setDisplayName(team.getDisplayName().getLeftOrCompute((component) -> con.getChatSerializer().toString( component )));
-            t.setPrefix(team.getPrefix().getLeftOrCompute((component) -> con.getChatSerializer().toString( component )));
-            t.setSuffix(team.getSuffix().getLeftOrCompute((component) -> con.getChatSerializer().toString( component )));
+            t.setDisplayName(
+                    team.getDisplayName().getLeftOrCompute((component) -> con.getChatSerializer().toString(component)));
+            t.setPrefix(team.getPrefix().getLeftOrCompute((component) -> con.getChatSerializer().toString(component)));
+            t.setSuffix(team.getSuffix().getLeftOrCompute((component) -> con.getChatSerializer().toString(component)));
             t.setFriendlyFire(team.getFriendlyFire());
-            t.setNameTagVisibility( team.getNameTagVisibility().isLeft() ? team.getNameTagVisibility().getLeft() : team.getNameTagVisibility().getRight().getKey() );
+            t.setNameTagVisibility(team.getNameTagVisibility().isLeft() ? team.getNameTagVisibility().getLeft()
+                    : team.getNameTagVisibility().getRight().getKey());
             if (team.getCollisionRule() != null)
-                t.setCollisionRule( team.getCollisionRule().isLeft() ? team.getCollisionRule().getLeft() : team.getCollisionRule().getRight().getKey() );
+                t.setCollisionRule(team.getCollisionRule().isLeft() ? team.getCollisionRule().getLeft()
+                        : team.getCollisionRule().getRight().getKey());
             t.setColor(team.getColor());
         }
 
@@ -270,12 +294,15 @@ public class DownstreamBridge extends PacketHandler {
     @Override
     @SuppressWarnings("checkstyle:avoidnestedblocks")
     public void handle(PluginMessage pluginMessage) throws Exception {
-        final PluginMessageEvent event = new PluginMessageEvent(server, con, pluginMessage.getTag(), pluginMessage.getData().clone());
+        final PluginMessageEvent event = new PluginMessageEvent(server, con, pluginMessage.getTag(),
+                pluginMessage.getData().clone());
         if (bungee.getPluginManager().callEvent(event).isCancelled()) {
             throw CancelSendSignal.INSTANCE;
         }
 
-        if (pluginMessage.getTag().equals(con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand" : "MC|Brand")) {
+        if (pluginMessage.getTag()
+                .equals(con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:brand"
+                        : "MC|Brand")) {
             ByteBuf brand = Unpooled.wrappedBuffer(pluginMessage.getData());
             final String serverBrand = DefinedPacket.readString(brand);
             brand.release();
@@ -283,7 +310,9 @@ public class DownstreamBridge extends PacketHandler {
             Preconditions.checkState(!serverBrand.contains(bungee.getName()), "Cannot connect proxy to itself!");
 
             brand = ByteBufAllocator.DEFAULT.heapBuffer();
-            final String brandName = XenonCore.instance.getConfigData().getModules().getBrand_module().isEnabled() ? XenonCore.instance.getConfigData().getModules().getBrand_module().getName() : "XenonCord";
+            final String brandName = XenonCore.instance.getConfigData().getModules().getBrand_module().isEnabled()
+                    ? XenonCore.instance.getConfigData().getModules().getBrand_module().getName()
+                    : "XenonCord";
             DefinedPacket.writeString(brandName, brand);
             pluginMessage.setData(brand);
             brand.release();
@@ -304,7 +333,8 @@ public class DownstreamBridge extends PacketHandler {
                     if ("REGISTER".equals(tag)) {
                         CHANNELS_REGISTERED.putIfAbsent(connection, new AtomicInteger());
 
-                        if (CHANNELS_REGISTERED.get(connection).addAndGet(new String(event.getData(), Charsets.UTF_8).split("\u0000").length) > 124) {
+                        if (CHANNELS_REGISTERED.get(connection)
+                                .addAndGet(new String(event.getData(), Charsets.UTF_8).split("\u0000").length) > 124) {
                             throw new IOException("Too many channels");
                         }
                     } else {
@@ -319,7 +349,6 @@ public class DownstreamBridge extends PacketHandler {
                 }
             }
         }
-
 
         if (pluginMessage.getTag().equals(PluginMessage.BUNGEE_CHANNEL_LEGACY)) {
             final DataInput in = pluginMessage.getStream();
@@ -546,7 +575,6 @@ public class DownstreamBridge extends PacketHandler {
         }
     }
 
-
     @Override
     public void handle(Kick kick) throws Exception {
         final ServerInfo nextServer = con.updateAndGetNextServer(server.getInfo());
@@ -555,42 +583,39 @@ public class DownstreamBridge extends PacketHandler {
                 new ServerKickEvent(
                         con,
                         server.getInfo(),
-                        new BaseComponent[]{kick.getMessage()},
+                        new BaseComponent[] { kick.getMessage() },
                         def,
                         ServerKickEvent.State.CONNECTED,
-                        ServerKickEvent.Cause.SERVER
-                )
-        ); // Waterfall
+                        ServerKickEvent.Cause.SERVER)); // Waterfall
         if (event.isCancelled() && event.getCancelServer() != null) {
-            if ( event.getCancelServer().equals( server.getInfo() ) )
-            {
-                // Just in case a plugin tries to do this. No point trying to reconnect to same server.
-                // This also prevents the code setting the connection to obsolete from reoccurring.
+            if (event.getCancelServer().equals(server.getInfo())) {
+                // Just in case a plugin tries to do this. No point trying to reconnect to same
+                // server.
+                // This also prevents the code setting the connection to obsolete from
+                // reoccurring.
                 throw CancelSendSignal.INSTANCE;
             }
             Callback<ServerConnectRequest.Result> callback = (result, error) -> {
-                if ( result == ServerConnectRequest.Result.SUCCESS )
-                {
-                    con.sendMessage( bungee.getTranslation( "server_went_down", server.getInfo().getName(), def.getName() ) );
-                } else
-                {
+                if (result == ServerConnectRequest.Result.SUCCESS) {
+                    con.sendMessage(
+                            bungee.getTranslation("server_went_down", server.getInfo().getName(), def.getName()));
+                } else {
                     con.disconnect(event.getKickReasonComponent());
                 }
             };
-            con.connect( ServerConnectRequest.builder()
-                    .callback( callback )
-                    .retry( false )
-                    .reason( ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT )
-                    .target( def )
-                    .build() );
-            con.setDimensionChange( true ); // NOTE: Dim Change Connect
+            con.connect(ServerConnectRequest.builder()
+                    .callback(callback)
+                    .retry(false)
+                    .reason(ServerConnectEvent.Reason.SERVER_DOWN_REDIRECT)
+                    .target(def)
+                    .build());
+            con.setDimensionChange(true); // NOTE: Dim Change Connect
         } else {
             con.disconnect(event.getKickReasonComponent()); // TODO: Prefix our own stuff.
         }
         server.setObsolete(true);
         throw CancelSendSignal.INSTANCE;
     }
-
 
     @Override
     public void handle(SetCompression setCompression) throws Exception {
@@ -602,8 +627,8 @@ public class DownstreamBridge extends PacketHandler {
         List<String> commands = tabCompleteResponse.getCommands() != null
                 ? tabCompleteResponse.getCommands()
                 : tabCompleteResponse.getSuggestions().getList().stream()
-                .map(Suggestion::getText)
-                .collect(Collectors.toList());
+                        .map(Suggestion::getText)
+                        .collect(Collectors.toList());
 
         String last = con.getLastCommandTabbed();
         if (last != null) {
@@ -621,7 +646,8 @@ public class DownstreamBridge extends PacketHandler {
             con.setLastCommandTabbed(null);
         }
 
-        TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent(server, con, new ArrayList<>(commands));
+        TabCompleteResponseEvent tabCompleteResponseEvent = new TabCompleteResponseEvent(server, con,
+                new ArrayList<>(commands));
         if (!bungee.getPluginManager().callEvent(tabCompleteResponseEvent).isCancelled()) {
             List<String> newSuggestions = tabCompleteResponseEvent.getSuggestions();
 
@@ -660,8 +686,10 @@ public class DownstreamBridge extends PacketHandler {
     // Waterfall start
     @Override
     public void handle(net.md_5.bungee.protocol.packet.EntityEffect entityEffect) throws Exception {
-        if (con.isDisableEntityMetadataRewrite()) return; // Waterfall
-        // Don't send any potions when switching between servers (which involves a handshake), which can trigger a race
+        if (con.isDisableEntityMetadataRewrite())
+            return; // Waterfall
+        // Don't send any potions when switching between servers (which involves a
+        // handshake), which can trigger a race
         // condition on the client.
         if (this.con.getForgeClientHandler().isForgeUser() && !this.con.getForgeClientHandler().isHandshakeComplete()) {
             throw CancelSendSignal.INSTANCE;
@@ -671,7 +699,8 @@ public class DownstreamBridge extends PacketHandler {
 
     @Override
     public void handle(net.md_5.bungee.protocol.packet.EntityRemoveEffect removeEffect) throws Exception {
-        if (con.isDisableEntityMetadataRewrite()) return; // Waterfall
+        if (con.isDisableEntityMetadataRewrite())
+            return; // Waterfall
         con.getPotions().remove(rewriteEntityId(removeEffect.getEntityId()), removeEffect.getEffectId());
     }
 
@@ -704,8 +733,8 @@ public class DownstreamBridge extends PacketHandler {
                 }
             });
 
-
-            io.github.waterfallmc.waterfall.event.ProxyDefineCommandsEvent event = new io.github.waterfallmc.waterfall.event.ProxyDefineCommandsEvent(this.server, this.con, commandMap);
+            io.github.waterfallmc.waterfall.event.ProxyDefineCommandsEvent event = new io.github.waterfallmc.waterfall.event.ProxyDefineCommandsEvent(
+                    this.server, this.con, commandMap);
 
             bungee.getPluginManager().callEvent(event);
 
@@ -719,7 +748,8 @@ public class DownstreamBridge extends PacketHandler {
                 modified = true;
             }
 
-            if (!modified) return;
+            if (!modified)
+                return;
 
             con.unsafe().sendPacket(commands);
         });
@@ -728,7 +758,8 @@ public class DownstreamBridge extends PacketHandler {
 
     @Override
     public void handle(ServerData serverData) throws Exception {
-        // 1.19.4 doesn't allow empty MOTD and we probably don't want to simulate a ping event to get the "correct" one
+        // 1.19.4 doesn't allow empty MOTD and we probably don't want to simulate a ping
+        // event to get the "correct" one
         // serverData.setMotd( null );
         // serverData.setIcon( null );
         // con.unsafe().sendPacket( serverData );
@@ -746,25 +777,71 @@ public class DownstreamBridge extends PacketHandler {
     }
 
     @Override
+    public void handle(FinishConfiguration finishConfiguration) throws Exception {
+        Runnable finish = () -> {
+            con.unsafe().sendPacket(finishConfiguration);
+            con.sendQueuedPackets();
+        };
+        // fire the event here as we can keep the connection alive pre 1.20.5.
+        // for newer clients use the KnownPacks packet.
+        if (con.getPendingConnection().getVersion() <= ProtocolConstants.MINECRAFT_1_20_3) {
+            callConfigEvent(finish);
+        } else {
+            finish.run();
+        }
 
-
-    public void handle(FinishConfiguration finishConfiguration) throws Exception
-    {
-        // the clients protocol will change to GAME after this packet
-        con.unsafe().sendPacket( finishConfiguration );
-        // send queued packets as early as possible
-        con.sendQueuedPackets();
         throw CancelSendSignal.INSTANCE;
     }
 
     @Override
-    public void handle(BundleDelimiter bundleDelimiter) throws Exception
-    {
+    public void handle(KnownPacks knownPacks) throws Exception {
+        // call PlayerConfiguration event here.
+        // For older clients its called when FinishConfiguration is received.
+        callConfigEvent(() -> con.unsafe().sendPacket(knownPacks));
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(BundleDelimiter bundleDelimiter) throws Exception {
         con.toggleBundling();
     }
 
     @Override
     public String toString() {
-        return "[" + con.getAddress() + "|" + con.getName() + "] <-> DownstreamBridge <-> [" + server.getInfo().getName() + "]";
+        return "[" + con.getAddress() + "|" + con.getName() + "] <-> DownstreamBridge <-> ["
+                + server.getInfo().getName() + "]";
+    }
+
+    // this method is used for event execution
+    // if this connection is disconnected during an event-call, the original
+    // callback is not called
+    // if the event was executed async, we execute the callback on the eventloop
+    // again
+    // otherwise netty will schedule any pipeline related call by itself, this
+    // decreases performance
+    private <T> Callback<T> eventLoopCallback(Callback<T> callback) {
+        return (result, error) -> {
+            server.getCh().scheduleIfNecessary(() -> {
+                if (server.getCh().isClosing() || con.getCh().isClosing()) {
+                    return;
+                }
+
+                if (!server.getInfo().equals(con.getServer().getInfo())) {
+                    return;
+                }
+
+                callback.done(result, error);
+            });
+        };
+    }
+
+    private void callConfigEvent(Runnable runnable) {
+        PlayerConfigurationEvent event = new PlayerConfigurationEvent(
+                con,
+                server.isFirstLogin() ? PlayerConfigurationEvent.Reason.LOGIN
+                        : PlayerConfigurationEvent.Reason.RECONFIGURE,
+                eventLoopCallback((result, error) -> runnable.run()));
+        server.setFirstLogin(false);
+        bungee.getPluginManager().callEvent(event);
     }
 }

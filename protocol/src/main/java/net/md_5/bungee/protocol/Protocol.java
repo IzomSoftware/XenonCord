@@ -17,13 +17,14 @@ public enum Protocol {
         HANDSHAKE {
 
                 {
-                        TO_SERVER.registerPacket(Handshake.class,Handshake::new,map(ProtocolConstants.MINECRAFT_1_8,0x00));
+                        TO_SERVER.registerPacket(Handshake.class, Handshake::new,
+                                        map(ProtocolConstants.MINECRAFT_1_8, 0x00));
                 }
         },
         // 0
         GAME {
 
-        {
+                {
                         TO_CLIENT.registerPacket(
                                         BundleDelimiter.class,
                                         BundleDelimiter::new,
@@ -761,7 +762,7 @@ public enum Protocol {
         // 1
         STATUS {
 
-        {
+                {
                         TO_CLIENT.registerPacket(
                                         StatusResponse.class,
                                         StatusResponse::new,
@@ -784,7 +785,7 @@ public enum Protocol {
         // 2
         LOGIN {
 
-        {
+                {
                         TO_CLIENT.registerPacket(
                                         Kick.class,
                                         Kick::new,
@@ -839,7 +840,7 @@ public enum Protocol {
         // 3
         CONFIGURATION {
 
-        {
+                {
 
                         TO_CLIENT.registerPacket(
                                         CookieRequest.class,
@@ -875,6 +876,10 @@ public enum Protocol {
                                         Transfer::new,
                                         RegisterType.ENCODE,
                                         map(ProtocolConstants.MINECRAFT_1_20_5, 0x0B));
+                        TO_CLIENT.registerPacket(
+                                        KnownPacks.class,
+                                        KnownPacks::new,
+                                        map(ProtocolConstants.MINECRAFT_1_20_5, 0x0E));
                         TO_CLIENT.registerPacket(
                                         DisconnectReportDetails.class,
                                         DisconnectReportDetails::new,

@@ -31,6 +31,9 @@ public class ServerConnection implements Server {
     private final Queue<DefinedPacket> packetQueue = new ArrayDeque<>();
     @Getter
     @Setter
+    private boolean firstLogin;
+    @Getter
+    @Setter
     private boolean isObsolete;    private final Unsafe unsafe = new Unsafe() {
         @Override
         public void sendPacket(DefinedPacket packet) {

@@ -4,7 +4,7 @@
 
     <groupId>io.github.waterfallmc</groupId>
     <artifactId>waterfall-parent</artifactId>
-    <version>1.21-R0.1</version>
+    <version>26.1-R0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Waterfall-Parent</name>
