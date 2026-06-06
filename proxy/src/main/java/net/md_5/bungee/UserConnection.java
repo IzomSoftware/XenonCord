@@ -68,6 +68,8 @@ public final class UserConnection implements ProxiedPlayer {
     private final Collection<String> groups = new CaseInsensitiveSet();
     private final Collection<String> permissions = new CaseInsensitiveSet();
     @Getter
+    private final UUID sessionId = UUID.randomUUID();
+    @Getter
     private final Scoreboard serverSentScoreboard = new Scoreboard();
     @Getter
     private final Collection<UUID> sentBossBars = new HashSet<>();

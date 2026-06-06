@@ -273,7 +273,7 @@ public class DownstreamBridge extends PacketHandler {
             if (team.getCollisionRule() != null)
                 t.setCollisionRule(team.getCollisionRule().isLeft() ? team.getCollisionRule().getLeft()
                         : team.getCollisionRule().getRight().getKey());
-            t.setColor(team.getColor());
+            t.setColor(team.getColor().orElse( 0 ));
         }
 
         if (team.getPlayers() != null) {

@@ -468,7 +468,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
                 userCon.setCompressionThreshold(BungeeCord.getInstance().config.getCompressionThreshold());
 
                 if (getVersion() < ProtocolConstants.MINECRAFT_1_20_2) {
-                    unsafe.sendPacket(new LoginSuccess(getRewriteId(), getName(), (loginProfile == null) ? null : loginProfile.getProperties()));
+                    unsafe.sendPacket(new LoginSuccess(getRewriteId(), getName(), (loginProfile == null) ? null : loginProfile.getProperties(), null));
                     ch.setProtocol(Protocol.GAME);
                 }
                 finish2();

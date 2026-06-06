@@ -411,7 +411,7 @@ public class ServerConnector extends PacketHandler {
             } else {
                 final LoginResult loginProfile = user.getPendingConnection().getLoginProfile();
                 user.unsafe().sendPacket(new LoginSuccess(user.getRewriteId(), user.getName(),
-                        (loginProfile == null) ? null : loginProfile.getProperties()));
+                        (loginProfile == null) ? null : loginProfile.getProperties(), user.getSessionId()));
                 user.getCh().setEncodeProtocol(Protocol.CONFIGURATION);
             }
         }

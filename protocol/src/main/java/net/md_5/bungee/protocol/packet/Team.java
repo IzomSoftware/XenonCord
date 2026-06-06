@@ -1,5 +1,7 @@
 package net.md_5.bungee.protocol.packet;
 
+import java.util.Optional;
+
 import io.netty.buffer.ByteBuf;
 import lombok.*;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -24,7 +26,7 @@ public class Team extends DefinedPacket {
     private Either<String, BaseComponent> suffix;
     private Either<String, NameTagVisibility> nameTagVisibility;
     private Either<String, CollisionRule> collisionRule;
-    private int color;
+    private Optional<Integer> color;
     private byte friendlyFire;
     private String[] players;
 
@@ -52,16 +54,21 @@ public class Team extends DefinedPacket {
             }
             friendlyFire = buf.readByte();
             if (protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5) {
-                nameTagVisibility = Either.right( NameTagVisibility.BY_ID[readVarInt( buf )] );
-                collisionRule = Either.right( CollisionRule.BY_ID[readVarInt( buf )] );
+                nameTagVisibility = Either.right(NameTagVisibility.BY_ID[readVarInt(buf)]);
+                collisionRule = Either.right(CollisionRule.BY_ID[readVarInt(buf)]);
             } else {
-                nameTagVisibility = Either.left( readString( buf ) );
+                nameTagVisibility = Either.left(readString(buf));
 
                 if (protocolVersion >= ProtocolConstants.MINECRAFT_1_9) {
-                    collisionRule = Either.left( readString( buf ) );
+                    collisionRule = Either.left(readString(buf));
                 }
             }
-            color = (protocolVersion >= ProtocolConstants.MINECRAFT_1_13) ? readVarInt(buf) : buf.readByte();
+            if (protocolVersion >= ProtocolConstants.MINECRAFT_26_2) {
+                color = readOptional(DefinedPacket::readVarInt, buf);
+            } else {
+                color = Optional
+                        .of((protocolVersion >= ProtocolConstants.MINECRAFT_1_13) ? readVarInt(buf) : buf.readByte());
+            }
             if (protocolVersion >= ProtocolConstants.MINECRAFT_1_13) {
                 prefix = readEitherBaseComponent(buf, protocolVersion, false);
                 suffix = readEitherBaseComponent(buf, protocolVersion, false);
@@ -88,21 +95,23 @@ public class Team extends DefinedPacket {
             }
             buf.writeByte(friendlyFire);
             if (protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5) {
-                writeVarInt( nameTagVisibility.getRight().ordinal(), buf );
-                writeVarInt( collisionRule.getRight().ordinal(), buf );
+                writeVarInt(nameTagVisibility.getRight().ordinal(), buf);
+                writeVarInt(collisionRule.getRight().ordinal(), buf);
             } else {
-                writeString( nameTagVisibility.getLeft(), buf );
+                writeString(nameTagVisibility.getLeft(), buf);
                 if (protocolVersion >= ProtocolConstants.MINECRAFT_1_9) {
                     writeString(collisionRule.getLeft(), buf);
                 }
             }
 
-            if (protocolVersion >= ProtocolConstants.MINECRAFT_1_13) {
-                writeVarInt(color, buf);
+            if (protocolVersion >= ProtocolConstants.MINECRAFT_26_2) {
+                writeOptional(color, DefinedPacket::writeVarInt, buf);
+            } else if (protocolVersion >= ProtocolConstants.MINECRAFT_1_13) {
+                writeVarInt(color.get(), buf);
                 writeEitherBaseComponent(prefix, buf, protocolVersion);
                 writeEitherBaseComponent(suffix, buf, protocolVersion);
             } else {
-                buf.writeByte(color);
+                buf.writeByte(color.get());
             }
         }
         if (mode == 0 || mode == 3 || mode == 4) {
@@ -129,7 +138,7 @@ public class Team extends DefinedPacket {
         ALWAYS("always"),
         NEVER("never"),
         HIDE_FOR_OTHER_TEAMS("hideForOtherTeams"),
-        HIDE_FOR_OWN_TEAM( "hideForOwnTeam" );
+        HIDE_FOR_OWN_TEAM("hideForOwnTeam");
 
         private final String key;
         private static final NameTagVisibility[] BY_ID = values();
