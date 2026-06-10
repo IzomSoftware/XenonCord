@@ -41,5 +41,5 @@ manifest.mf
 */src/main/lombok
 
 .vscode
-
+test_run/
 XenonCord.jar

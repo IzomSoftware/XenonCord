@@ -21,7 +21,7 @@ public class Metrics {
                 config.getServerUUID(),
                 id,
                 config.isEnabled(),
-                (builder) -> {
+                builder -> {
                     builder.appendField("osName", System.getProperty("os.name"));
                     builder.appendField("osArch", System.getProperty("os.arch"));
                     builder.appendField("osVersion", System.getProperty("os.version"));
