@@ -1,3 +1,4 @@
+# The project is currently under heavy maintenance. a stable release would be published soon.
 # 🌌 XenonCord  
 
 *A lightweight, easy-to-use, and scalable BungeeCord proxy.*  
@@ -48,7 +49,16 @@ XenonCord is a **fork of Waterfall**, which itself is a fork of **BungeeCord**. 
 ---
 
 ## 🚧 TODO  
-📌 **Optimizations** – Improve performance & reduce overhead.  
+📌 **Optimizations** – Improve performance & reduce overhead.
+- Optimization plans:
+- Replace thread.sleeps
+- Replace reflections based stuff
+- use libdeflate
+- control buf copies
+- remove r/w lock (replace with ConcurrentHashmap
+- control buf release
+- remove system.nanotime
+
 📌 **Feature Additions** – Expand functionality with new capabilities.  
 
 ---
