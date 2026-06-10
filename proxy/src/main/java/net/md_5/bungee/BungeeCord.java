@@ -41,7 +41,7 @@ import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
-import net.md_5.bungee.util.CaseInsensitiveMap;
+import net.md_5.bungee.util.ConcurrentCaseInsensitiveMap;
 import net.md_5.bungee.util.EncryptionUtil;
 import org.reflections.Reflections;
 
@@ -54,6 +54,8 @@ import java.nio.charset.StandardCharsets;
 import java.text.Format;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -85,15 +87,15 @@ public class BungeeCord extends ProxyServer {
      * Server socket listener.
      */
     private final Collection<Channel> listeners = new HashSet<>();
-    // private final Timer metricsThread = new Timer( "Metrics Thread" ); // Waterfall: Disable Metrics
+    // private final Timer metricsThread = new Timer( "Metrics Thread" ); //
+    // Waterfall: Disable Metrics
     /**
      * Fully qualified connections.
      */
-    private final Map<String, UserConnection> connections = new CaseInsensitiveMap<>();
+    private final ConcurrentMap<String, UserConnection> connections = new ConcurrentCaseInsensitiveMap<>();
     // Used to help with packet rewriting
-    private final Map<UUID, UserConnection> connectionsByOfflineUUID = new HashMap<>();
-    private final Map<UUID, UserConnection> connectionsByUUID = new HashMap<>();
-    private final ReadWriteLock connectionLock = new ReentrantReadWriteLock();
+    private final ConcurrentHashMap<UUID, UserConnection> connectionsByOfflineUUID = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, UserConnection> connectionsByUUID = new ConcurrentHashMap<>();
     /**
      * Lock to protect the shutdown process from being triggered simultaneously
      * from multiple sources.
@@ -106,9 +108,9 @@ public class BungeeCord extends ProxyServer {
     private final BungeeScheduler scheduler = new BungeeScheduler();
     // Waterfall start - Remove ConsoleReader for JLine 3 update
     /*
-    @Getter
-    private final ConsoleReader consoleReader;
-    */
+     * @Getter
+     * private final ConsoleReader consoleReader;
+     */
     // Waterfall end
     @Getter
     private final Logger logger;
@@ -137,8 +139,11 @@ public class BungeeCord extends ProxyServer {
     public BungeeCord(boolean isDev) throws IOException {
         ProxyServer.setInstance(this);
         this.xenonInstance = new XenonCore(isDev);
-        // Java uses ! to indicate a resource inside of a jar/zip/other container. Running Bungee from within a directory that has a ! will cause this to muck up.
-        Preconditions.checkState(new File(".").getAbsolutePath().indexOf('!') == -1, "Cannot use Waterfall in directory with ! in path.");
+        // Java uses ! to indicate a resource inside of a jar/zip/other container.
+        // Running Bungee from within a directory that has a ! will cause this to muck
+        // up.
+        Preconditions.checkState(new File(".").getAbsolutePath().indexOf('!') == -1,
+                "Cannot use Waterfall in directory with ! in path.");
 
         reloadMessages();
 
@@ -154,26 +159,29 @@ public class BungeeCord extends ProxyServer {
         Preconditions.checkState(xenonInstance.getConfigData() != null,
                 "Something caused config to be null? Maybe config is for older version. delete it once.");
 
-        if (Boolean.getBoolean("net.md_5.bungee.native.disable")) return;
+        if (Boolean.getBoolean("net.md_5.bungee.native.disable"))
+            return;
 
         ByteBuf directBuffer = null;
         boolean hasMemoryAddress;
-        try{
+        try {
             directBuffer = Unpooled.directBuffer();
             hasMemoryAddress = directBuffer.hasMemoryAddress();
-        } finally
-        {
-            if ( directBuffer != null )
+        } finally {
+            if (directBuffer != null)
                 directBuffer.release();
         }
 
-        if ( !hasMemoryAddress )
-        {
-            logger.warning( "Memory addresses are not available in direct buffers" );
+        if (!hasMemoryAddress) {
+            logger.warning("Memory addresses are not available in direct buffers");
         }
 
-        xenonInstance.logdebuginfo("Using " + (hasMemoryAddress && EncryptionUtil.nativeFactory.load() ? "mbed TLS based native" : "standard Java JCE") + " cipher.");
-        xenonInstance.logdebuginfo("Using " + (hasMemoryAddress && CompressFactory.zlib.load() ? "zlib based native" : "standard Java") + " compressor.");
+        xenonInstance.logdebuginfo(
+                "Using " + (hasMemoryAddress && EncryptionUtil.nativeFactory.load() ? "mbed TLS based native"
+                        : "standard Java JCE") + " cipher.");
+        xenonInstance.logdebuginfo(
+                "Using " + (hasMemoryAddress && CompressFactory.zlib.load() ? "zlib based native" : "standard Java")
+                        + " compressor.");
     }
 
     public static BungeeCord getInstance() {
@@ -191,17 +199,20 @@ public class BungeeCord extends ProxyServer {
     public void start(long startTime) throws Exception {
         xenonInstance.getLogger().info("Enabled XenonCord {}", XenonCore.instance.getVersion());
 
-        System.setProperty("io.netty.selectorAutoRebuildThreshold", "0"); // Seems to cause Bungee to stop accepting connections
+        System.setProperty("io.netty.selectorAutoRebuildThreshold", "0"); // Seems to cause Bungee to stop accepting
+                                                                          // connections
 
-        if (System.getProperty("io.netty.leakDetectionLevel") == null && System.getProperty("io.netty.leakDetection.level") == null)
+        if (System.getProperty("io.netty.leakDetectionLevel") == null
+                && System.getProperty("io.netty.leakDetection.level") == null)
             ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED); // Eats performance
 
         // https://github.com/netty/netty/wiki/Netty-4.2-Migration-Guide
-        // The adaptive allocator, the new default allocator since Netty 4.2, has some memory issues.
-        // Setting it globally also ensures that any plugins would also use the pooled allocator.
-        if ( System.getProperty( "io.netty.allocator.type" ) == null )
-        {
-            System.setProperty( "io.netty.allocator.type", "pooled" );
+        // The adaptive allocator, the new default allocator since Netty 4.2, has some
+        // memory issues.
+        // Setting it globally also ensures that any plugins would also use the pooled
+        // allocator.
+        if (System.getProperty("io.netty.allocator.type") == null) {
+            System.setProperty("io.netty.allocator.type", "pooled");
         }
 
         bossEventLoopGroup = PipelineUtils.newEventLoopGroup(
@@ -225,12 +236,12 @@ public class BungeeCord extends ProxyServer {
         xenonInstance.logdebuginfo("command registerer is starting...");
         new Reflections("ir.xenoncommunity.commands").getSubTypesOf(Command.class).stream().filter(
                 command -> !command.getSimpleName().toLowerCase().contains("playercommand")).forEach(command -> {
-            try {
-                this.getPluginManager().registerCommand(null, command.newInstance());
-            } catch (Exception e) {
-                XenonCore.instance.getLogger().error(e.getMessage());
-            }
-        });
+                    try {
+                        this.getPluginManager().registerCommand(null, command.newInstance());
+                    } catch (Exception e) {
+                        XenonCore.instance.getLogger().error(e.getMessage());
+                    }
+                });
         xenonInstance.logdebuginfo("Commands are loaded!");
 
         xenonInstance.logdebuginfo("plugin loader is starting...");
@@ -250,17 +261,19 @@ public class BungeeCord extends ProxyServer {
         XenonCore.instance.init(startTime);
     }
 
-
     public void startListeners() {
         xenonInstance.getTaskManager().add(() -> {
             xenonInstance.logdebuginfo("ASYNC task start listeners is starting...");
             config.getListeners().forEach(info -> {
                 if (info.isProxyProtocol()) {
-                    xenonInstance.logdebuginfo(String.format("Using PROXY protocol for listener %s, please ensure this listener is adequately firewalled.", info.getSocketAddress().toString()));
+                    xenonInstance.logdebuginfo(String.format(
+                            "Using PROXY protocol for listener %s, please ensure this listener is adequately firewalled.",
+                            info.getSocketAddress().toString()));
 
                     if (connectionThrottle != null) {
                         connectionThrottle = null;
-                        xenonInstance.logdebuginfo("Since PROXY protocol is in use, internal connection throttle has been disabled.");
+                        xenonInstance.logdebuginfo(
+                                "Since PROXY protocol is in use, internal connection throttle has been disabled.");
                     }
                 }
 
@@ -282,16 +295,20 @@ public class BungeeCord extends ProxyServer {
                         .localAddress(info.getSocketAddress())
                         .bind().addListener(listener);
 
-                if (!info.isQueryEnabled()) return;
+                if (!info.isQueryEnabled())
+                    return;
 
-                Preconditions.checkArgument(info.getSocketAddress() instanceof InetSocketAddress, "Can only create query listener on UDP address");
+                Preconditions.checkArgument(info.getSocketAddress() instanceof InetSocketAddress,
+                        "Can only create query listener on UDP address");
 
                 final ChannelFutureListener bindListener = future -> {
                     if (future.isSuccess()) {
                         listeners.add(future.channel());
-                        xenonInstance.logdebuginfo(String.format("Started query on %s", future.channel().localAddress()));
+                        xenonInstance
+                                .logdebuginfo(String.format("Started query on %s", future.channel().localAddress()));
                     } else {
-                        xenonInstance.logdebuginfo(String.format("Could not bind to host %s %s", info.getSocketAddress(), future.cause()));
+                        xenonInstance.logdebuginfo(
+                                String.format("Could not bind to host %s %s", info.getSocketAddress(), future.cause()));
                     }
                 };
 
@@ -299,13 +316,11 @@ public class BungeeCord extends ProxyServer {
                         PipelineUtils.getDatagramChannel(),
                         new InetSocketAddress(info.getHost().getAddress(), info.getQueryPort()),
                         workerEventLoopGroup,
-                        bindListener
-                );
+                        bindListener);
             });
             xenonInstance.logdebuginfo("ASYNC task start listeners is shutting down...");
         });
     }
-
 
     public void stopListeners() {
         xenonInstance.logdebuginfo("Closing listeners...");
@@ -353,19 +368,13 @@ public class BungeeCord extends ProxyServer {
         stopListeners();
         xenonInstance.logdebuginfo("Closing pending connections");
 
-        connectionLock.readLock().lock();
-        try {
-            xenonInstance.logdebuginfo(String.format("Disconnecting %s connections", connections.size()));
-            connections.values().forEach(user -> user.disconnect(reason));
-        } finally {
-            connectionLock.readLock().unlock();
-        }
+        xenonInstance.logdebuginfo(String.format("Disconnecting %s connections", connections.size()));
+        connections.values().forEach(user -> user.disconnect(reason));
 
         try {
             Thread.sleep(500);
         } catch (InterruptedException ignored) {
         }
-
 
         saveThread.cancel();
 
@@ -399,8 +408,10 @@ public class BungeeCord extends ProxyServer {
         // Need to close loggers after last message!
         org.apache.logging.log4j.LogManager.shutdown(); // Waterfall
 
-        // Unlock the thread before optionally calling system exit, which might invoke this function again.
-        // If that happens, the system will obtain the lock, and then see that isRunning == false and return without doing anything.
+        // Unlock the thread before optionally calling system exit, which might invoke
+        // this function again.
+        // If that happens, the system will obtain the lock, and then see that isRunning
+        // == false and return without doing anything.
         shutdownLock.unlock();
 
         if (callSystemExit) {
@@ -414,14 +425,9 @@ public class BungeeCord extends ProxyServer {
      * @param packet the packet to send
      */
     public void broadcast(DefinedPacket packet) {
-        connectionLock.readLock().lock();
-        try {
-            connections.values().forEach(con -> {
-                con.unsafe().sendPacket(packet);
-            });
-        } finally {
-            connectionLock.readLock().unlock();
-        }
+        connections.values().forEach(con -> {
+            con.unsafe().sendPacket(packet);
+        });
     }
 
     @Override
@@ -473,12 +479,8 @@ public class BungeeCord extends ProxyServer {
     @Override
     @SuppressWarnings("unchecked")
     public Collection<ProxiedPlayer> getPlayers() {
-        connectionLock.readLock().lock();
-        try {
-            return Collections.unmodifiableCollection(new HashSet(connections.values()));
-        } finally {
-            connectionLock.readLock().unlock();
-        }
+        return Collections.unmodifiableCollection(new HashSet(connections.values()));
+
     }
 
     @Override
@@ -488,34 +490,22 @@ public class BungeeCord extends ProxyServer {
 
     @Override
     public ProxiedPlayer getPlayer(String name) {
-        connectionLock.readLock().lock();
-        try {
             return connections.get(name);
-        } finally {
-            connectionLock.readLock().unlock();
-        }
     }
 
     public UserConnection getPlayerByOfflineUUID(UUID uuid) {
         if (uuid.version() != 3) {
             return null;
         }
-        connectionLock.readLock().lock();
-        try {
-            return connectionsByOfflineUUID.get(uuid);
-        } finally {
-            connectionLock.readLock().unlock();
-        }
+        return connectionsByOfflineUUID.get(uuid);
+
     }
 
     @Override
     public ProxiedPlayer getPlayer(UUID uuid) {
-        connectionLock.readLock().lock();
-        try {
-            return connectionsByUUID.get(uuid);
-        } finally {
-            connectionLock.readLock().unlock();
-        }
+
+        return connectionsByUUID.get(uuid);
+
     }
 
     @Override
@@ -560,7 +550,8 @@ public class BungeeCord extends ProxyServer {
                     .collect(Collectors.joining("\00")).getBytes(StandardCharsets.UTF_8), false);
         }
 
-        return new PluginMessage("REGISTER", String.join("\00", pluginChannels).getBytes(StandardCharsets.UTF_8), false);
+        return new PluginMessage("REGISTER", String.join("\00", pluginChannels).getBytes(StandardCharsets.UTF_8),
+                false);
     }
 
     @Override
@@ -612,32 +603,25 @@ public class BungeeCord extends ProxyServer {
 
         final String name = con.getName();
 
-        connectionLock.writeLock().lock();
-        try {
-            if (connections.containsKey(name) || connectionsByUUID.containsKey(con.getUniqueId()) || connectionsByOfflineUUID.containsKey(offlineId))
+            if (connections.containsKey(name) || connectionsByUUID.containsKey(con.getUniqueId())
+                    || connectionsByOfflineUUID.containsKey(offlineId))
                 return false;
 
             connections.put(name, con);
             connectionsByUUID.put(con.getUniqueId(), con);
             connectionsByOfflineUUID.put(offlineId, con);
-        } finally {
-            connectionLock.writeLock().unlock();
-        }
+        
         return true;
     }
 
     public void removeConnection(UserConnection con) {
-        connectionLock.writeLock().lock();
-        try {
-            // TODO See #1218
-            if (connections.get(con.getName()) == con) {
-                connections.remove(con.getName());
-                connectionsByUUID.remove(con.getUniqueId());
-                connectionsByOfflineUUID.remove(con.getPendingConnection().getOfflineId());
-            }
-        } finally {
-            connectionLock.writeLock().unlock();
+
+        if (connections.get(con.getName()) == con) {
+            connections.remove(con.getName());
+            connectionsByUUID.remove(con.getUniqueId());
+            connectionsByOfflineUUID.remove(con.getPendingConnection().getOfflineId());
         }
+
     }
 
     @Override
@@ -650,7 +634,9 @@ public class BungeeCord extends ProxyServer {
         Preconditions.checkNotNull(partialName, "partialName");
         final ProxiedPlayer exactMatch = getPlayer(partialName);
 
-        return exactMatch != null ? Collections.singleton(exactMatch) : Sets.newHashSet(Iterables.filter(getPlayers(), input -> input != null && input.getName().toLowerCase(Locale.ROOT).startsWith(partialName.toLowerCase(Locale.ROOT))));
+        return exactMatch != null ? Collections.singleton(exactMatch)
+                : Sets.newHashSet(Iterables.filter(getPlayers(), input -> input != null
+                        && input.getName().toLowerCase(Locale.ROOT).startsWith(partialName.toLowerCase(Locale.ROOT))));
     }
 
     @Override
