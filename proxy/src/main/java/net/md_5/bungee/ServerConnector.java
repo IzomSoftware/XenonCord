@@ -73,6 +73,9 @@ public class ServerConnector extends PacketHandler {
             if (brandMessage != null) {
                 ch.write(brandMessage);
             }
+            if (user.getSettings() != null && user.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_20_2){
+                ch.write(user.getSettings());
+            }
         }
 
         final Queue<DefinedPacket> packetQueue = target.getPacketQueue();
