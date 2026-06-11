@@ -2,6 +2,9 @@ package net.md_5.bungee.scheduler;
 
 import io.github.waterfallmc.waterfall.event.ProxyExceptionEvent;
 import io.github.waterfallmc.waterfall.exception.ProxySchedulerException;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
 import lombok.Data;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -9,6 +12,7 @@ import net.md_5.bungee.api.scheduler.ScheduledTask;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 @Data
@@ -22,6 +26,7 @@ public class BungeeTask implements Runnable, ScheduledTask {
     private final long delay;
     private final long period;
     private final AtomicBoolean running = new AtomicBoolean(true);
+    private AtomicReference<Timeout> pendingTimeout;
 
     public BungeeTask(BungeeScheduler sched, int id, Plugin owner, Runnable task, long delay, long period, TimeUnit unit) {
         this.sched = sched;
@@ -37,43 +42,65 @@ public class BungeeTask implements Runnable, ScheduledTask {
         boolean wasRunning = running.getAndSet(false);
 
         if (wasRunning) {
+            Timeout timeout = pendingTimeout.get();
+            if (timeout != null) {
+                timeout.cancel();
+            }
             sched.cancel0(this);
         }
     }
 
+    void scheduleWith(Timer timer) {
+        if (!running.get()){
+            return;
+        }
+        pendingTimeout.set(timer.newTimeout(new TimerTask() {
+            @Override
+            public void run(Timeout timeout) throws Exception {
+                if (!running.get()) {
+                    return;
+                }
+                owner.getExecutorService().execute(BungeeTask.this);
+            }
+        }, delay, TimeUnit.MILLISECONDS));
+    }
+
+    private void reSchedule(Timer timer) {
+        if (!running.get() || period <= 0) {
+            cancel();
+            return;
+        }
+        pendingTimeout.set(timer.newTimeout(new TimerTask() {
+            @Override
+            public void run(Timeout timeout) throws Exception {
+                if (!running.get()) {
+                    return;
+                }
+                owner.getExecutorService().execute(BungeeTask.this);
+            }
+        }, period, TimeUnit.MILLISECONDS));
+    }
+
     @Override
     public void run() {
-        if (delay > 0) {
-            try {
-                Thread.sleep(delay);
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
+        if (!running.get()) {
+            return;
         }
 
-        while (running.get()) {
-            try {
-                task.run();
-            } catch (Throwable t) {
-                //Waterfall start - throw exception event
-                String msg = String.format("Task %s encountered an exception", this);
-                ProxyServer.getInstance().getLogger().log(Level.SEVERE, msg, t);
-                ProxyServer.getInstance().getPluginManager().callEvent(new ProxyExceptionEvent(new ProxySchedulerException(msg, t, this)));
-                //Waterfall end
-            }
-
-            // If we have a period of 0 or less, only run once
-            if (period <= 0) {
-                break;
-            }
-
-            try {
-                Thread.sleep(period);
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
+        try {
+            task.run();
+        } catch (Exception t) {
+            //Waterfall start - throw exception event
+            String msg = String.format("Task %s encountered an exception", this);
+            ProxyServer.getInstance().getLogger().log(Level.SEVERE, msg, t);
+            ProxyServer.getInstance().getPluginManager().callEvent(new ProxyExceptionEvent(new ProxySchedulerException(msg, t, this)));
+            //Waterfall end
         }
 
-        cancel();
+        if (period <= 0) {
+            cancel();
+        } else {
+            reSchedule(sched.getTimer());
+        }
     }
 }

@@ -4,6 +4,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+
+import io.netty.util.HashedWheelTimer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -13,7 +15,6 @@ import net.md_5.bungee.api.scheduler.TaskScheduler;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,13 +25,13 @@ public class BungeeScheduler implements TaskScheduler {
     private final Int2ObjectMap<BungeeTask> tasks = Int2ObjectMaps.synchronize(new Int2ObjectOpenHashMap<BungeeTask>());
     private final Multimap<Plugin, BungeeTask> tasksByPlugin = Multimaps.synchronizedMultimap(HashMultimap.create());
     //
-    private final Unsafe unsafe = new Unsafe() {
+    private final Unsafe unsafe = Plugin::getExecutorService;
 
-        @Override
-        public ExecutorService getExecutorService(Plugin plugin) {
-            return plugin.getExecutorService();
-        }
-    };
+    private final HashedWheelTimer timer = new HashedWheelTimer(r -> {
+        Thread t = new Thread(r, "Bungee Scheduler Timer");
+        t.setDaemon(true);
+        return t;
+    });
 
     @Override
     public void cancel(int id) {
@@ -87,12 +88,16 @@ public class BungeeScheduler implements TaskScheduler {
             tasksByPlugin.put(owner, prepared);
         }
 
-        owner.getExecutorService().execute(prepared);
+        prepared.scheduleWith(timer);
         return prepared;
     }
 
     @Override
     public Unsafe unsafe() {
         return unsafe;
+    }
+
+    HashedWheelTimer getTimer() {
+        return timer;
     }
 }
