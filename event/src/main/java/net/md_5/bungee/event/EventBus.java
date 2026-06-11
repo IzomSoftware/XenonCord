@@ -37,8 +37,6 @@ public class EventBus {
 
                 try {
                     method.invoke(event);
-                } catch (IllegalAccessException ex) {
-                    throw new Error("Method became inaccessible: " + event, ex);
                 } catch (IllegalArgumentException ex) {
                     throw new Error("Method rejected target/argument: " + event, ex);
                 } catch (InvocationTargetException ex) {
