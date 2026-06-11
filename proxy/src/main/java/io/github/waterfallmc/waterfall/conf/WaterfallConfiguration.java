@@ -41,7 +41,6 @@ public class WaterfallConfiguration extends Configuration {
     private int tabThrottle = 1000;
     private boolean disableModernTabLimiter = true;
 
-    private boolean disableEntityMetadataRewrite = false;
     private boolean disableTabListRewrite = true;
 
     private ForwardingMode forwardingMode = ForwardingMode.BUNGEECORD_LEGACY;
@@ -75,7 +74,6 @@ public class WaterfallConfiguration extends Configuration {
         // Throttling options
         tabThrottle = config.getInt("throttling.tab_complete", tabThrottle);
         disableModernTabLimiter = config.getBoolean("disable_modern_tab_limiter", disableModernTabLimiter);
-        disableEntityMetadataRewrite = config.getBoolean("disable_entity_metadata_rewrite", disableEntityMetadataRewrite);
         disableTabListRewrite = config.getBoolean("disable_tab_list_rewrite", disableTabListRewrite);
 
         forwardingMode = ForwardingMode.valueOf(config.getString("forwarding_mode", ForwardingMode.BUNGEECORD_LEGACY.toString()).toUpperCase());
@@ -131,11 +129,6 @@ public class WaterfallConfiguration extends Configuration {
     @Override
     public boolean isDisableModernTabLimiter() {
         return disableModernTabLimiter;
-    }
-
-    @Override
-    public boolean isDisableEntityMetadataRewrite() {
-        return disableEntityMetadataRewrite;
     }
 
     @Override

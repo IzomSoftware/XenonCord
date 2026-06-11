@@ -35,7 +35,6 @@ import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.score.*;
 import net.md_5.bungee.api.score.Team;
-import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
@@ -130,11 +129,6 @@ public class DownstreamBridge extends PacketHandler {
 
     @Override
     public void handle(PacketWrapper packet) throws Exception {
-        final EntityMap rewrite = con.getEntityRewrite();
-        if (rewrite != null && con.getCh().getEncodeProtocol() == Protocol.GAME) {
-            rewrite.rewriteClientbound(packet.buf, con.getServerEntityId(), con.getClientEntityId(),
-                    con.getPendingConnection().getVersion());
-        }
         con.sendPacket(packet);
     }
 
@@ -683,26 +677,6 @@ public class DownstreamBridge extends PacketHandler {
         }
     }
 
-    // Waterfall start
-    @Override
-    public void handle(net.md_5.bungee.protocol.packet.EntityEffect entityEffect) throws Exception {
-        if (con.isDisableEntityMetadataRewrite())
-            return; // Waterfall
-        // Don't send any potions when switching between servers (which involves a
-        // handshake), which can trigger a race
-        // condition on the client.
-        if (this.con.getForgeClientHandler().isForgeUser() && !this.con.getForgeClientHandler().isHandshakeComplete()) {
-            throw CancelSendSignal.INSTANCE;
-        }
-        con.getPotions().put(rewriteEntityId(entityEffect.getEntityId()), entityEffect.getEffectId());
-    }
-
-    @Override
-    public void handle(net.md_5.bungee.protocol.packet.EntityRemoveEffect removeEffect) throws Exception {
-        if (con.isDisableEntityMetadataRewrite())
-            return; // Waterfall
-        con.getPotions().remove(rewriteEntityId(removeEffect.getEntityId()), removeEffect.getEffectId());
-    }
 
     private int rewriteEntityId(int entityId) {
         if (entityId == con.getServerEntityId()) {

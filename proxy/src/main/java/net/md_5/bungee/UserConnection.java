@@ -27,7 +27,6 @@ import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.VersionedComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
-import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeClientHandler;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.forge.ForgeServerHandler;
@@ -145,8 +144,6 @@ public final class UserConnection implements ProxiedPlayer {
     /*========================================================================*/
     @Getter
     private String displayName;
-    @Getter
-    private EntityMap entityRewrite;
     private Locale locale;
     /*========================================================================*/
     @Getter
@@ -157,7 +154,6 @@ public final class UserConnection implements ProxiedPlayer {
     private ForgeServerHandler forgeServerHandler;
 
     public boolean init() {
-        this.entityRewrite = EntityMap.getEntityMap(getPendingConnection().getVersion());
         this.chatSerializer = ChatSerializer.forVersion( getPendingConnection().getVersion() );
 
         this.displayName = name;
@@ -688,12 +684,6 @@ public final class UserConnection implements ProxiedPlayer {
 
         unsafe().sendPacket(new Transfer(host, port));
     }
-
-    // Waterfall start
-    public boolean isDisableEntityMetadataRewrite() {
-        return entityRewrite == net.md_5.bungee.entitymap.EntityMap_Dummy.INSTANCE;
-    }
-
 
     // Waterfall end
 

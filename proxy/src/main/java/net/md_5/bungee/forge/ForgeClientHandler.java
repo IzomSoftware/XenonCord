@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import lombok.*;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.packet.EntityRemoveEffect;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 import java.util.ArrayDeque;
@@ -93,10 +92,6 @@ public class ForgeClientHandler {
     }
 
     private void resetAllThePotions(UserConnection con) {
-        // Just to be sure
-        for (Map.Entry<Integer, Integer> entry : con.getPotions().entries()) {
-            con.unsafe().sendPacket(new EntityRemoveEffect(entry.getKey(), entry.getValue()));
-        }
         con.getPotions().clear();
     }
 

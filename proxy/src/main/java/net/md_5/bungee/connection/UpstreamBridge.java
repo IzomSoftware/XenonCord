@@ -12,7 +12,6 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.*;
-import net.md_5.bungee.entitymap.EntityMap;
 import net.md_5.bungee.forge.ForgeConstants;
 import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.PacketHandler;
@@ -83,11 +82,6 @@ public class UpstreamBridge extends PacketHandler {
             Protocol serverEncode = server.getCh().getEncodeProtocol();
             if (packet.protocol != serverEncode)
                 return;
-
-            EntityMap rewrite = con.getEntityRewrite();
-            if (rewrite != null && serverEncode == Protocol.GAME)
-                rewrite.rewriteServerbound(packet.buf, con.getClientEntityId(), con.getServerEntityId(),
-                        con.getPendingConnection().getVersion());
 
             server.getCh().write(packet);
         }
@@ -306,10 +300,6 @@ public class UpstreamBridge extends PacketHandler {
 
             ch.write(BungeeCord.getInstance().registerChannels(con.getPendingConnection().getVersion()));
 
-            if (con.getSettings() != null && (!con.isDisableEntityMetadataRewrite()
-                    || con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2)) {
-                ch.write(con.getSettings());
-            }
             if (con.getPendingConnection().getBrandMessage() != null) {
                 ch.write(con.getPendingConnection().getBrandMessage());
             }
