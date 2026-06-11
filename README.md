@@ -51,11 +51,12 @@ XenonCord is a **fork of Waterfall**, which itself is a fork of **BungeeCord**. 
 ## 🚧 TODO  
 📌 **Optimizations** – Improve performance & reduce overhead.
 - Optimization plans:
-- Replace thread.sleeps
+- Remove entity mapping entirely ✅ (Testing required)
+- Replace thread.sleeps ✅ (Testing required)
 - Replace reflections based stuff
 - use libdeflate
 - control buf copies
-- remove r/w lock (replace with ConcurrentHashmap
+- remove r/w lock (replace with ConcurrentHashmap ✅ (Testing required)
 - control buf release
 - remove system.nanotime
 
