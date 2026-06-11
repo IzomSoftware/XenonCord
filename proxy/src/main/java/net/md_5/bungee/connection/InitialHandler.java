@@ -20,7 +20,7 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.*;
-import net.md_5.bungee.api.xenoncord.PostPlayerHandshakeEvent;
+import ir.xenoncommunity.api.event.PostPlayerHandshakeEvent;
 import net.md_5.bungee.http.HttpClient;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
 import net.md_5.bungee.netty.ChannelWrapper;

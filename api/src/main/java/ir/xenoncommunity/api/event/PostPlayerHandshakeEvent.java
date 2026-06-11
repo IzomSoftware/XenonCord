@@ -1,4 +1,4 @@
-package net.md_5.bungee.api.xenoncord;
+package ir.xenoncommunity.api.event;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
