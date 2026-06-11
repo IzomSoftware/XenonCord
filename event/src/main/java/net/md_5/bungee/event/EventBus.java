@@ -33,7 +33,7 @@ public class EventBus {
 
         if (handlers != null) {
             for (EventHandlerMethod method : handlers) {
-                long start = System.nanoTime();
+                // long start = System.nanoTime();
 
                 try {
                     method.invoke(event);
@@ -46,13 +46,13 @@ public class EventBus {
                         exceptionHandler.handleEventException(msg, event, method, ex); //Waterfall - call passed exception handler
                 }
 
-                long elapsed = System.nanoTime() - start;
-                if (elapsed > 50000000) {
-                    logger.log(Level.WARNING, "Plugin listener {0} took {1}ms to process event {2}!", new Object[]
-                            {
-                                    method.getListener().getClass().getName(), elapsed / 1000000, event
-                            });
-                }
+                // long elapsed = System.nanoTime() - start;
+                // if (elapsed > 50000000) {
+                //     logger.log(Level.WARNING, "Plugin listener {0} took {1}ms to process event {2}!", new Object[]
+                //             {
+                //                     method.getListener().getClass().getName(), elapsed / 1000000, event
+                //             });
+                // }
             }
         }
     }

@@ -430,17 +430,17 @@ public final class PluginManager {
     public <T extends Event> T callEvent(T event) {
         Preconditions.checkNotNull(event, "event");
 
-        long start = System.nanoTime();
+        // long start = System.nanoTime();
         eventBus.post(event, this::handleEventException); //Waterfall - pass exception gui below
         event.postCall();
 
-        long elapsed = System.nanoTime() - start;
-        if (elapsed > 250000000) {
-            ProxyServer.getInstance().getLogger().log(Level.WARNING, "Event {0} took {1}ms to process!", new Object[]
-                    {
-                            event, elapsed / 1000000
-                    });
-        }
+        // long elapsed = System.nanoTime() - start;
+        // if (elapsed > 250000000) {
+        //     ProxyServer.getInstance().getLogger().log(Level.WARNING, "Event {0} took {1}ms to process!", new Object[]
+        //             {
+        //                     event, elapsed / 1000000
+        //             });
+        // }
         return event;
     }
 
