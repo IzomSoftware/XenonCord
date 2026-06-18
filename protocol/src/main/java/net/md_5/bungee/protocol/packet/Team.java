@@ -18,8 +18,7 @@ import net.md_5.bungee.protocol.util.Either;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Team extends DefinedPacket
-{
+public class Team extends DefinedPacket {
 
     private String name;
     /**
@@ -42,146 +41,121 @@ public class Team extends DefinedPacket
      *
      * @param name team name
      */
-    public Team(String name)
-    {
+    public Team(String name) {
         this.name = name;
         this.mode = 1;
     }
 
     @Override
-    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
-    {
-        name = readString( buf );
+    public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion) {
+        name = readString(buf);
         mode = buf.readByte();
-        if ( mode == 0 || mode == 2 )
-        {
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_2 )
-            {
-                displayName = readEitherBaseComponent( buf, protocolVersion, false );
-                prefix = readEitherBaseComponent( buf, protocolVersion, false );
-                suffix = readEitherBaseComponent( buf, protocolVersion, false );
-                nameTagVisibility = Either.right( NameTagVisibility.BY_ID[readVarInt( buf )] );
-                collisionRule = Either.right( CollisionRule.BY_ID[readVarInt( buf )] );
-                color = readOptional( DefinedPacket::readVarInt, buf );
+        if (mode == 0 || mode == 2) {
+            if (protocolVersion >= ProtocolConstants.MINECRAFT_26_2) {
+                displayName = readEitherBaseComponent(buf, protocolVersion, false);
+                prefix = readEitherBaseComponent(buf, protocolVersion, false);
+                suffix = readEitherBaseComponent(buf, protocolVersion, false);
+                nameTagVisibility = Either.right(NameTagVisibility.BY_ID[readVarInt(buf)]);
+                collisionRule = Either.right(CollisionRule.BY_ID[readVarInt(buf)]);
+                color = readOptional(DefinedPacket::readVarInt, buf);
                 friendlyFire = buf.readByte();
-            } else
-            {
-                if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
-                {
-                    displayName = readEitherBaseComponent( buf, protocolVersion, true );
-                    prefix = readEitherBaseComponent( buf, protocolVersion, true );
-                    suffix = readEitherBaseComponent( buf, protocolVersion, true );
-                } else
-                {
-                    displayName = readEitherBaseComponent( buf, protocolVersion, false );
+            } else {
+                if (protocolVersion < ProtocolConstants.MINECRAFT_1_13) {
+                    displayName = readEitherBaseComponent(buf, protocolVersion, true);
+                    prefix = readEitherBaseComponent(buf, protocolVersion, true);
+                    suffix = readEitherBaseComponent(buf, protocolVersion, true);
+                } else {
+                    displayName = readEitherBaseComponent(buf, protocolVersion, false);
                 }
                 friendlyFire = buf.readByte();
-                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5 )
-                {
-                    nameTagVisibility = Either.right( NameTagVisibility.BY_ID[readVarInt( buf )] );
-                    collisionRule = Either.right( CollisionRule.BY_ID[readVarInt( buf )] );
-                } else
-                {
-                    nameTagVisibility = Either.left( readString( buf ) );
-                    if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
-                    {
-                        collisionRule = Either.left( readString( buf ) );
+                if (protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5) {
+                    nameTagVisibility = Either.right(NameTagVisibility.BY_ID[readVarInt(buf)]);
+                    collisionRule = Either.right(CollisionRule.BY_ID[readVarInt(buf)]);
+                } else {
+                    nameTagVisibility = Either.left(readString(buf));
+                    if (protocolVersion >= ProtocolConstants.MINECRAFT_1_9) {
+                        collisionRule = Either.left(readString(buf));
                     }
                 }
-                color = Optional.of( ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? readVarInt( buf ) : buf.readByte() );
-                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
-                {
-                    prefix = readEitherBaseComponent( buf, protocolVersion, false );
-                    suffix = readEitherBaseComponent( buf, protocolVersion, false );
+                color = Optional
+                        .of((protocolVersion >= ProtocolConstants.MINECRAFT_1_13) ? readVarInt(buf) : buf.readByte());
+                if (protocolVersion >= ProtocolConstants.MINECRAFT_1_13) {
+                    prefix = readEitherBaseComponent(buf, protocolVersion, false);
+                    suffix = readEitherBaseComponent(buf, protocolVersion, false);
                 }
             }
         }
-        if ( mode == 0 || mode == 3 || mode == 4 )
-        {
-            int len = readVarInt( buf );
-            players = new String[ len ];
-            for ( int i = 0; i < len; i++ )
-            {
-                players[i] = readString( buf );
+        if (mode == 0 || mode == 3 || mode == 4) {
+            int len = readVarInt(buf);
+            players = new String[len];
+            for (int i = 0; i < len; i++) {
+                players[i] = readString(buf);
             }
         }
     }
 
     @Override
-    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
-    {
-        writeString( name, buf );
-        buf.writeByte( mode );
-        if ( mode == 0 || mode == 2 )
-        {
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_2 )
-            {
-                writeEitherBaseComponent( displayName, buf, protocolVersion );
-                writeEitherBaseComponent( prefix, buf, protocolVersion );
-                writeEitherBaseComponent( suffix, buf, protocolVersion );
-                writeVarInt( nameTagVisibility.getRight().ordinal(), buf );
-                writeVarInt( collisionRule.getRight().ordinal(), buf );
-                writeOptional( color, DefinedPacket::writeVarInt, buf );
-                buf.writeByte( friendlyFire );
+    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion) {
+        writeString(name, buf);
+        buf.writeByte(mode);
+        if (mode == 0 || mode == 2) {
+            if (protocolVersion >= ProtocolConstants.MINECRAFT_26_2) {
+                writeEitherBaseComponent(displayName, buf, protocolVersion);
+                writeEitherBaseComponent(prefix, buf, protocolVersion);
+                writeEitherBaseComponent(suffix, buf, protocolVersion);
+                writeVarInt(nameTagVisibility.getRight().ordinal(), buf);
+                writeVarInt(collisionRule.getRight().ordinal(), buf);
+                writeOptional(color, DefinedPacket::writeVarInt, buf);
+                buf.writeByte(friendlyFire);
 
-            } else
-            {
-                writeEitherBaseComponent( displayName, buf, protocolVersion );
-                if ( protocolVersion < ProtocolConstants.MINECRAFT_1_13 )
-                {
-                    writeEitherBaseComponent( prefix, buf, protocolVersion );
-                    writeEitherBaseComponent( suffix, buf, protocolVersion );
+            } else {
+                writeEitherBaseComponent(displayName, buf, protocolVersion);
+                if (protocolVersion < ProtocolConstants.MINECRAFT_1_13) {
+                    writeEitherBaseComponent(prefix, buf, protocolVersion);
+                    writeEitherBaseComponent(suffix, buf, protocolVersion);
                 }
-                buf.writeByte( friendlyFire );
-                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5 )
-                {
-                    writeVarInt( nameTagVisibility.getRight().ordinal(), buf );
-                    writeVarInt( collisionRule.getRight().ordinal(), buf );
-                } else
-                {
-                    writeString( nameTagVisibility.getLeft(), buf );
-                    if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_9 )
-                    {
-                        writeString( collisionRule.getLeft(), buf );
+                buf.writeByte(friendlyFire);
+                if (protocolVersion >= ProtocolConstants.MINECRAFT_1_21_5) {
+                    writeVarInt(nameTagVisibility.getRight().ordinal(), buf);
+                    writeVarInt(collisionRule.getRight().ordinal(), buf);
+                } else {
+                    writeString(nameTagVisibility.getLeft(), buf);
+                    if (protocolVersion >= ProtocolConstants.MINECRAFT_1_9) {
+                        writeString(collisionRule.getLeft(), buf);
                     }
                 }
 
-                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
-                {
-                    writeVarInt( color.get(), buf );
-                    writeEitherBaseComponent( prefix, buf, protocolVersion );
-                    writeEitherBaseComponent( suffix, buf, protocolVersion );
-                } else
-                {
-                    buf.writeByte( color.get() );
+                if (protocolVersion >= ProtocolConstants.MINECRAFT_1_13) {
+                    writeVarInt(color.get(), buf);
+                    writeEitherBaseComponent(prefix, buf, protocolVersion);
+                    writeEitherBaseComponent(suffix, buf, protocolVersion);
+                } else {
+                    buf.writeByte(color.get());
                 }
             }
         }
-        if ( mode == 0 || mode == 3 || mode == 4 )
-        {
-            writeVarInt( players.length, buf );
-            for ( String player : players )
-            {
-                writeString( player, buf );
+        if (mode == 0 || mode == 3 || mode == 4) {
+            writeVarInt(players.length, buf);
+            for (String player : players) {
+                writeString(player, buf);
             }
         }
     }
 
     @Override
-    public void handle(AbstractPacketHandler handler) throws Exception
-    {
-        handler.handle( this );
+    public void handle(AbstractPacketHandler handler) throws Exception {
+        handler.handle(this);
     }
 
     @Getter
     @RequiredArgsConstructor
-    public enum NameTagVisibility
-    {
+    public enum NameTagVisibility {
 
-        ALWAYS( "always" ),
-        NEVER( "never" ),
-        HIDE_FOR_OTHER_TEAMS( "hideForOtherTeams" ),
-        HIDE_FOR_OWN_TEAM( "hideForOwnTeam" );
+        ALWAYS("always"),
+        NEVER("never"),
+        HIDE_FOR_OTHER_TEAMS("hideForOtherTeams"),
+        HIDE_FOR_OWN_TEAM("hideForOwnTeam");
+
         //
         private final String key;
         //
@@ -190,13 +164,13 @@ public class Team extends DefinedPacket
 
     @Getter
     @RequiredArgsConstructor
-    public enum CollisionRule
-    {
+    public enum CollisionRule {
 
-        ALWAYS( "always" ),
-        NEVER( "never" ),
-        PUSH_OTHER_TEAMS( "pushOtherTeams" ),
-        PUSH_OWN_TEAM( "pushOwnTeam" );
+        ALWAYS("always"),
+        NEVER("never"),
+        PUSH_OTHER_TEAMS("pushOtherTeams"),
+        PUSH_OWN_TEAM("pushOwnTeam");
+
         //
         private final String key;
         //
