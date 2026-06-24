@@ -26,7 +26,7 @@ public class BungeeTask implements Runnable, ScheduledTask {
     private final long delay;
     private final long period;
     private final AtomicBoolean running = new AtomicBoolean(true);
-    private AtomicReference<Timeout> pendingTimeout = new AtomicReference<Timeout>();
+    private AtomicReference<Timeout> pendingTimeout = new AtomicReference<>();
 
     public BungeeTask(BungeeScheduler sched, int id, Plugin owner, Runnable task, long delay, long period, TimeUnit unit) {
         this.sched = sched;
