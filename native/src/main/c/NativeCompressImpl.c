@@ -86,6 +86,8 @@ jlong JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_init(JNIEnv* env
 jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(JNIEnv* env, jobject obj, jlong ctx, jlong in, jint inLength, jlong out, jint outLength, jboolean compress) {
     libdeflate_ctx *lctx = (libdeflate_ctx*) (intptr_t) ctx;
 
+    (*env)->SetIntField(env, obj, consumedID, 0);
+
     if (compress) {
         if (!lctx->compressed_buf) {
             size_t bound = libdeflate_zlib_compress_bound(lctx->compressor, (size_t) inLength);
