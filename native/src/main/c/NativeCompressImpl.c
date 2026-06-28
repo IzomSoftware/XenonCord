@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-
-#include <zlib-ng.h>
+#include <libdeflate.h>
 #include "shared.h"
 #if !defined(__aarch64__)
 #include "cpuid_helper.h"
@@ -30,74 +29,81 @@ jint throwException(JNIEnv *env, const char* message, int err) {
 }
 
 JNIEXPORT jboolean JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_checkSupported(JNIEnv* env, jobject obj) {
-	#if !defined(__aarch64__)
-	return (jboolean) checkCompressionNativesSupport();
-	#else
-	return JNI_TRUE;
-	#endif
+#if !defined(__aarch64__)
+    unsigned int eax, ebx, ecx, edx;
+    if (__get_cpuid(1, &eax, &ebx, &ecx, &edx)) {
+        return (jboolean)((edx & bit_SSE2) != 0);
+    }
+    return JNI_FALSE;
+#else
+    return JNI_TRUE;
+#endif
 }
 
-void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_reset(JNIEnv* env, jobject obj, jlong ctx, jboolean compress) {
-    zng_stream* stream = (zng_stream*) ctx;
-    int ret = (compress) ? zng_deflateReset(stream) : zng_inflateReset(stream);
+void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_reset(
+    JNIEnv* env, jobject obj, jlong ctx, jboolean compress) {
+}
 
-    if (ret != Z_OK) {
-        throwException(env, "Could not reset zng_stream", ret);
+void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_end(
+    JNIEnv* env, jobject obj, jlong ctx, jboolean compress) {
+    if (compress) {
+        libdeflate_free_compressor((struct libdeflate_compressor*) ctx);
+    } else {
+        libdeflate_free_decompressor((struct libdeflate_decompressor*) ctx);
     }
 }
 
-void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_end(JNIEnv* env, jobject obj, jlong ctx, jboolean compress) {
-    zng_stream* stream = (zng_stream*) ctx;
-    int ret = (compress) ? zng_deflateEnd(stream) : zng_inflateEnd(stream);
-
-    free(stream);
-
-    if (ret != Z_OK) {
-        throwException(env, "Could not free zng_stream: ", ret);
+jlong JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_init(
+    JNIEnv* env, jobject obj, jboolean compress, jint level) {
+    if (compress) {
+        struct libdeflate_compressor* c = libdeflate_alloc_compressor((level <= 0) ? 6 : (level <= 9) ? level * 12 / 9 : 12);
+        if (!c) {
+            throwOutOfMemoryError(env, "Failed to alloc decompressor");
+            return 0;
+        }
+        return (jlong) c;
+    } else {
+        struct libdeflate_decompressor* d = libdeflate_alloc_decompressor();
+        if (!d) {
+            throwOutOfMemoryError(env, "Failed to alloc decompressor");
+            return 0;
+        }
+        return (jlong) d;
     }
 }
 
-jlong JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_init(JNIEnv* env, jobject obj, jboolean compress, jint level) {
-    zng_stream* stream = (zng_stream*) calloc(1, sizeof (zng_stream));
-    if (!stream) {
-        throwOutOfMemoryError(env, "Failed to calloc new zng_stream");
-        return 0;
-    }
+jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(
+    JNIEnv* env, jobject obj, jlong ctx, jlong in, jint inLength,
+    jlong out, jint outLength, jboolean compress) {
 
-    int ret = (compress) ? zng_deflateInit(stream, level) : zng_inflateInit(stream);
+    byte* inBuf = (byte*) in;
+    byte* outBuf = (byte*) out;
 
-    if (ret != Z_OK) {
-        free(stream);
-        throwException(env, "Could not init zng_stream", ret);
-        return 0;
-    }
-
-    return (jlong) stream;
-}
-
-jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(JNIEnv* env, jobject obj, jlong ctx, jlong in, jint inLength, jlong out, jint outLength, jboolean compress) {
-    zng_stream* stream = (zng_stream*) ctx;
-
-    stream->avail_in = inLength;
-    stream->next_in = (byte*) in;
-
-    stream->avail_out = outLength;
-    stream->next_out = (byte*) out;
-
-    int ret = (compress) ? zng_deflate(stream, Z_FINISH) : zng_inflate(stream, Z_PARTIAL_FLUSH);
-
-    switch (ret) {
-        case Z_STREAM_END:
-            (*env)->SetBooleanField(env, obj, finishedID, JNI_TRUE);
-            break;
-        case Z_OK:
-            break;
-        default:
-            throwException(env, "Unknown zng_stream return code", ret);
+    if (compress) {
+        size_t actual = libdeflate_deflate_compress(
+            (struct libdeflate_compressor*) ctx,
+            inBuf, inLength, outBuf, outLength
+        );
+        if (actual == 0) {
+            throwException(env, "compress output buffer too small", -1);
             return -1;
+        }
+        (*env)->SetBooleanField(env, obj, finishedID, JNI_TRUE);
+        (*env)->SetIntField(env, obj, consumedID, inLength);
+        return (jint) actual;
+    } else {
+        size_t actual_in = 0, actual_out = 0;
+        enum libdeflate_result res = libdeflate_deflate_decompress_ex(
+            (struct libdeflate_decompressor*) ctx,
+            inBuf, inLength, outBuf, outLength,
+            &actual_in, &actual_out
+        );
+        if (res == LIBDEFLATE_SUCCESS || res == LIBDEFLATE_SHORT_OUTPUT) {
+            (*env)->SetBooleanField(env, obj, finishedID, JNI_TRUE);
+            (*env)->SetIntField(env, obj, consumedID, (jint) actual_in);
+            return (jint) actual_out;
+        }
+        throwException(env, "decompress failed", (int) res);
+        return -1;
     }
-
-    (*env)->SetIntField(env, obj, consumedID, inLength - stream->avail_in);
-
-    return outLength - stream->avail_out;
 }

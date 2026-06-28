@@ -4,6 +4,7 @@ set -eu
 
 CWD=$(pwd)
 JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+NPROC=$(nproc)
 
 if [ -n "${1:+x}" ]; then
 	if [ "$1" = "clean" ]; then
@@ -15,10 +16,13 @@ if [ -n "${1:+x}" ]; then
 fi
 
 echo "Compiling mbedtls"
-(cd mbedtls && CFLAGS="-fPIC -I$CWD/src/main/c -DMBEDTLS_USER_CONFIG_FILE='<mbedtls_custom_config.h>'" make no_test)
+(cd mbedtls && CFLAGS="-fPIC -I$CWD/src/main/c -DMBEDTLS_USER_CONFIG_FILE='<mbedtls_custom_config.h>'" make -j$NPROC no_test)
 
 echo "Compiling zlib"
-(cd zlib && CFLAGS="-fPIC -DNO_GZIP" ./configure --static && make)
+(cd zlib && CFLAGS="-fPIC -DNO_GZIP" ./configure --static && make -j$NPROC)
+
+echo "Compiling libdeflate"
+(cd libdeflate && cmake -DCMAKE_C_FLAGS="-fPIC" . && make -j$(nproc))
 
 CC="gcc"
 CFLAGS="-c -fPIC -O3 -Wall -Werror -I$JAVA_HOME/include/ -I$JAVA_HOME/include/linux/"
@@ -27,13 +31,15 @@ LDFLAGS="-shared"
 echo "Compiling bungee"
 $CC $CFLAGS -o shared.o src/main/c/shared.c 
 $CC $CFLAGS -Imbedtls/include -o NativeCipherImpl.o src/main/c/NativeCipherImpl.c
-$CC $CFLAGS -Izlib -o NativeCompressImpl.o src/main/c/NativeCompressImpl.c
+# $CC $CFLAGS -Izlib -o NativeCompressImpl.o src/main/c/NativeCompressImpl.c
+$CC $CFLAGS -Ilibdeflate -o NativeCompressImpl.o src/main/c/NativeCompressImpl.c
 
 echo "Linking native-cipher.so"
 $CC $LDFLAGS -o src/main/resources/native-cipher.so shared.o NativeCipherImpl.o mbedtls/library/libmbedcrypto.a
 
 echo "Linking native-compress.so"
-$CC $LDFLAGS -o src/main/resources/native-compress.so shared.o NativeCompressImpl.o zlib/libz-ng.a
+# $CC $LDFLAGS -o src/main/resources/native-compress.so shared.o NativeCompressImpl.o zlib/libz-ng.a
+$CC $LDFLAGS -o src/main/resources/native-compress.so shared.o NativeCompressImpl.o libdeflate/libdeflate.a
 
 echo "Cleaning up"
 rm shared.o NativeCipherImpl.o NativeCompressImpl.o
