@@ -13,6 +13,6 @@ CWD=$(pwd)
 # 	fi
 # fi
 
-(cd $CWD/native/ && ./build-native.sh)
+(cd $CWD/native/ && ./compile-native.sh)
 (cd $CWD && mvn clean install)
 (cd $CWD/test_run/ && cp ../XenonCord.jar ./)
