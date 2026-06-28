@@ -80,7 +80,7 @@ jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(
     byte* outBuf = (byte*) out;
 
     if (compress) {
-        size_t actual = libdeflate_deflate_compress(
+        size_t actual = libdeflate_zlib_compress(
             (struct libdeflate_compressor*) ctx,
             inBuf, inLength, outBuf, outLength
         );
@@ -93,7 +93,7 @@ jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(
         return (jint) actual;
     } else {
         size_t actual_in = 0, actual_out = 0;
-        enum libdeflate_result res = libdeflate_deflate_decompress_ex(
+        enum libdeflate_result res = libdeflate_zlib_decompress_ex(
             (struct libdeflate_decompressor*) ctx,
             inBuf, inLength, outBuf, outLength,
             &actual_in, &actual_out
