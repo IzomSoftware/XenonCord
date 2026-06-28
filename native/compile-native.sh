@@ -3,6 +3,7 @@
 set -eu
 
 CWD=$(pwd)
+JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
 
 if [ -n "${1:+x}" ]; then
 	if [ "$1" = "clean" ]; then
@@ -17,7 +18,7 @@ echo "Compiling mbedtls"
 (cd mbedtls && CFLAGS="-fPIC -I$CWD/src/main/c -DMBEDTLS_USER_CONFIG_FILE='<mbedtls_custom_config.h>'" make no_test)
 
 echo "Compiling zlib"
-(cd zlib && CFLAGS="-fPIC -DNO_GZIP" ./configure --sprefix="bungee_" --static && make)
+(cd zlib && CFLAGS="-fPIC -DNO_GZIP" ./configure --static && make)
 
 CC="gcc"
 CFLAGS="-c -fPIC -O3 -Wall -Werror -I$JAVA_HOME/include/ -I$JAVA_HOME/include/linux/"
