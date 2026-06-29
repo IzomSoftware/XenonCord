@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(BungeeCipher VERSION 1 LANGUAGES C)
 
+add_compile_options(-O2 -march=native -flto)
+
 add_library(
   native-cipher
   SHARED
