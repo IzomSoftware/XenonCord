@@ -9,7 +9,6 @@ C_DIR=$CWD/src/main/c
 LIBDEFLATE=$CWD/libdeflate
 MBEDTLS=$CWD/mbedtls
 RESOURCES=$CWD/src/main/resources
-JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
 
 echo "COMPILE: mbedtls"
 (cd mbedtls && CFLAGS="-fPIC -I$C_DIR/src -DMBEDTLS_USER_CONFIG_FILE='<mbedtls_custom_config.h>'" $MAKE no_test)
@@ -22,7 +21,7 @@ echo "DONE"
 # (cd zlib && CFLAGS="-fPIC -DNO_GZIP" ./configure --static && make -j$NPROC)
 
 echo "COMPILE: BungeeNative"
-(cd $C_DIR && cmake -D JAVA_HOME=$JAVA_HOME -D LIBDEFLATE=$LIBDEFLATE -D MBEDTLS=$MBEDTLS . && $MAKE && mv $C_DIR/native-compress.so $RESOURCES && mv $C_DIR/native-cipher.so $RESOURCES)
+(cd $C_DIR && cmake . && $MAKE && mv $C_DIR/native-compress.so $RESOURCES && mv $C_DIR/native-cipher.so $RESOURCES)
 echo "DONE"
 
 # $CC $CFLAGS -Izlib -o NativeCompressImpl.o src/main/c/NativeCompressImpl.c
