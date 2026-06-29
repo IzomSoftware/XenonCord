@@ -21,16 +21,8 @@ execute_process(
   OUTPUT_VARIABLE JAVA_HOME
   OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-execute_process(
-  COMMAND /bin/sh -c "cd ../../../libdeflate && pwd"
-  OUTPUT_VARIABLE LIBDEFLATE
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(
-  COMMAND /bin/sh -c "cd ../../../mbedtls && pwd"
-  OUTPUT_VARIABLE MBEDTLS
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+set(LIBDEFLATE "${CMAKE_SOURCE_DIR}/../../../libdeflate")
+set(MBEDTLS "${CMAKE_SOURCE_DIR}/../../../mbedtls")
 target_include_directories(
   native-cipher
   PRIVATE ${MBEDTLS}/include ${JAVA_HOME}/include/ ${JAVA_HOME}/include/linux)

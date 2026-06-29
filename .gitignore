@@ -47,6 +47,7 @@ test_run/
 native/libdeflate
 native/zlib
 native/mbedtls
+native/src/main/c/.cache
 native/src/main/c/CMakeFiles
 native/src/main/c/cmake_install.cmake
 native/src/main/c/CMakeCache.txt
