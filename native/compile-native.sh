@@ -3,43 +3,32 @@
 set -eu
 
 CWD=$(pwd)
-JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
 NPROC=$(nproc)
+MAKE="make -j$NPROC"
+C_DIR=$CWD/src/main/c
+LIBDEFLATE=$CWD/libdeflate
+MBEDTLS=$CWD/mbedtls
+RESOURCES=$CWD/src/main/resources
+NATIVE_COMPRESS=$C_DIR/NativeCompress
+NATIVE_CIPHER=$C_DIR/NativeCipher
+JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
 
-if [ -n "${1:+x}" ]; then
-	if [ "$1" = "clean" ]; then
-		echo "Cleaning mbedtls"
-		(cd mbedtls && git reset --hard && git clean -fdx && cd framework && git reset --hard && git clean -fdx)
-		echo "Cleaning zlib"
-		(cd zlib && git reset --hard && git clean -fdx)
-	fi
-fi
+echo "COMPILE: mbedtls"
+(cd mbedtls && CFLAGS="-fPIC -I$NATIVE_CIPHER -DMBEDTLS_USER_CONFIG_FILE='<mbedtls_custom_config.h>'" $MAKE no_test)
+echo "DONE"
 
-echo "Compiling mbedtls"
-(cd mbedtls && CFLAGS="-fPIC -I$CWD/src/main/c -DMBEDTLS_USER_CONFIG_FILE='<mbedtls_custom_config.h>'" make -j$NPROC no_test)
+echo "COMPILE: libdeflate"
+(cd libdeflate && cmake -DCMAKE_C_FLAGS="-fPIC" . && $MAKE)
+echo "DONE"
+# echo "Compiling zlib"
+# (cd zlib && CFLAGS="-fPIC -DNO_GZIP" ./configure --static && make -j$NPROC)
 
-echo "Compiling zlib"
-(cd zlib && CFLAGS="-fPIC -DNO_GZIP" ./configure --static && make -j$NPROC)
+echo "COMPILE: NativeCompress"
+(cd $NATIVE_COMPRESS && cmake -D JAVA_HOME=$JAVA_HOME -D LIBDEFLATE=$LIBDEFLATE . && $MAKE && mv $NATIVE_COMPRESS/native-compress.so $RESOURCES)
+echo "DONE"
 
-echo "Compiling libdeflate"
-(cd libdeflate && cmake -DCMAKE_C_FLAGS="-fPIC" . && make -j$(nproc))
+echo "COMPILE: NativeCipher"
+(cd $NATIVE_CIPHER && cmake -D JAVA_HOME=$JAVA_HOME -D MBEDTLS=$MBEDTLS . && $MAKE && mv $NATIVE_CIPHER/native-cipher.so $RESOURCES)
+echo "DONE"
 
-CC="gcc"
-CFLAGS="-c -fPIC -O3 -Wall -Werror -I$JAVA_HOME/include/ -I$JAVA_HOME/include/linux/"
-LDFLAGS="-shared"
-
-echo "Compiling bungee"
-$CC $CFLAGS -o shared.o src/main/c/shared.c 
-$CC $CFLAGS -Imbedtls/include -o NativeCipherImpl.o src/main/c/NativeCipherImpl.c
 # $CC $CFLAGS -Izlib -o NativeCompressImpl.o src/main/c/NativeCompressImpl.c
-$CC $CFLAGS -Ilibdeflate -o NativeCompressImpl.o src/main/c/NativeCompressImpl.c
-
-echo "Linking native-cipher.so"
-$CC $LDFLAGS -o src/main/resources/native-cipher.so shared.o NativeCipherImpl.o mbedtls/library/libmbedcrypto.a
-
-echo "Linking native-compress.so"
-# $CC $LDFLAGS -o src/main/resources/native-compress.so shared.o NativeCompressImpl.o zlib/libz-ng.a
-$CC $LDFLAGS -o src/main/resources/native-compress.so shared.o NativeCompressImpl.o libdeflate/libdeflate.a
-
-echo "Cleaning up"
-rm shared.o NativeCipherImpl.o NativeCompressImpl.o
