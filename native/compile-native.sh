@@ -14,7 +14,7 @@ NATIVE_CIPHER=$C_DIR/NativeCipher
 JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
 
 echo "COMPILE: mbedtls"
-(cd mbedtls && CFLAGS="-fPIC -I$NATIVE_CIPHER -DMBEDTLS_USER_CONFIG_FILE='<mbedtls_custom_config.h>'" $MAKE no_test)
+(cd mbedtls && CFLAGS="-fPIC -I$NATIVE_CIPHER/src -DMBEDTLS_USER_CONFIG_FILE='<mbedtls_custom_config.h>'" $MAKE no_test)
 echo "DONE"
 
 echo "COMPILE: libdeflate"
