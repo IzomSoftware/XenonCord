@@ -1,4 +1,4 @@
-# The project is currently under heavy maintenance. a stable release would be published soon.
+# This project has released the new version with lots of changes. please, if there's any problem/error/anything, contact us on github issues.
 # 🌌 XenonCord  
 
 *A lightweight, easy-to-use, and scalable BungeeCord proxy.*  
@@ -63,9 +63,7 @@ We only implement features into mainstream which **really** require us to do so 
 - Replace thread.sleeps ✅ (Testing required)
 - Replace reflections based stuff ✅ (Testing required)
 - remove r/w lock (replace with ConcurrentHashmap ✅ (Testing required)
-- use libdeflate
-- control buf copies
-- control buf release
+- use libdeflate  ✅
 - remove system.nanotime ✅
 
 📌 **Feature Additions** – Expand functionality with new capabilities.  
