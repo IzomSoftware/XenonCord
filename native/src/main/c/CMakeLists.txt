@@ -20,11 +20,10 @@ set_target_properties(native-cipher PROPERTIES PREFIX "")
 set_target_properties(native-compress PROPERTIES PREFIX "")
 execute_process(
   COMMAND /bin/sh -c "dirname $(dirname $(readlink -f $(which java)))"
-  OUTPUT_VARIABLE JAVA_HOME
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+  OUTPUT_VARIABLE JAVA_HOME OUTPUT_STRIP_TRAILING_WHITESPACE)
 set(LIBDEFLATE "${CMAKE_SOURCE_DIR}/../../../libdeflate")
 set(MBEDTLS "${CMAKE_SOURCE_DIR}/../../../mbedtls")
+
 target_include_directories(
   native-cipher
   PRIVATE ${MBEDTLS}/include ${JAVA_HOME}/include/ ${JAVA_HOME}/include/linux)
@@ -32,6 +31,9 @@ target_include_directories(
 target_include_directories(
   native-compress
   PRIVATE ${LIBDEFLATE} ${JAVA_HOME}/include/ ${JAVA_HOME}/include/linux/)
+
+target_link_libraries(native-compress
+                      ${LIBDEFLATE}/libdeflate.a)
 
 if(MSVC)
   target_compile_options(native-cipher PRIVATE /W4)
