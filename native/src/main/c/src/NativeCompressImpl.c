@@ -15,29 +15,32 @@ static jfieldID finishedID;
 static jmethodID makeExceptionID;
 
 typedef struct {
-  struct libdeflate_compressor *compressor;
-  struct libdeflate_decompressor *decompressor;
-  byte *compressed_buf;
   size_t compressed_size;
   size_t compressed_offset;
+  byte *compressed_buf;
+  struct libdeflate_compressor *compressor;
+  struct libdeflate_decompressor *decompressor;
 } libdeflate_ctx;
 
 void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_initFields(
     JNIEnv *env, jclass clazz) {
+  const JNIEnv toEnv = *env;
+
   classID = clazz;
   // We trust that these will be there
-  consumedID = (*env)->GetFieldID(env, clazz, "consumed", "I");
-  finishedID = (*env)->GetFieldID(env, clazz, "finished", "Z");
-  makeExceptionID = (*env)->GetMethodID(
+  consumedID = toEnv->GetFieldID(env, clazz, "consumed", "I");
+  finishedID = toEnv->GetFieldID(env, clazz, "finished", "Z");
+  makeExceptionID = toEnv->GetMethodID(
       env, clazz, "makeException",
       "(Ljava/lang/String;I)Lnet/md_5/bungee/jni/NativeCodeException;");
 }
 
 jint throwException(JNIEnv *env, const char *message, int err) {
-  jstring jMessage = (*env)->NewStringUTF(env, message);
-  jthrowable throwable = (jthrowable)(*env)->CallStaticObjectMethod(
-      env, classID, makeExceptionID, jMessage, err);
-  return (*env)->Throw(env, throwable);
+  const JNIEnv toEnv = *env;
+  const jstring jMessage = toEnv->NewStringUTF(env, message);
+
+  return toEnv->Throw(env, toEnv->CallStaticObjectMethod(
+                               env, classID, makeExceptionID, jMessage, err));
 }
 
 JNIEXPORT jboolean JNICALL
@@ -48,38 +51,40 @@ Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_checkSupported(JNIEnv *env,
 
 void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_reset(
     JNIEnv *env, jobject obj, jlong ctx, jboolean compress) {
-  libdeflate_ctx *lctx = (libdeflate_ctx *)(intptr_t)ctx;
-  if (lctx->compressed_buf) {
-    free(lctx->compressed_buf);
-    lctx->compressed_buf = NULL;
-  }
+  libdeflate_ctx *lctx = (libdeflate_ctx *)ctx;
+
+  free(lctx->compressed_buf);
+  lctx->compressed_buf = NULL;
   lctx->compressed_size = 0;
   lctx->compressed_offset = 0;
 }
 
 void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_end(
     JNIEnv *env, jobject obj, jlong ctx, jboolean compress) {
-  libdeflate_ctx *lctx = (libdeflate_ctx *)(intptr_t)ctx;
+  libdeflate_ctx *lctx = (libdeflate_ctx *)ctx;
+
   if (!lctx)
     return;
   if (lctx->compressor)
     libdeflate_free_compressor(lctx->compressor);
   if (lctx->decompressor)
     libdeflate_free_decompressor(lctx->decompressor);
-  if (lctx->compressed_buf)
-    free(lctx->compressed_buf);
+  free(lctx->compressed_buf);
   free(lctx);
 }
 
 jlong JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_init(
     JNIEnv *env, jobject obj, jboolean compress, jint level) {
-  libdeflate_ctx *lctx = (libdeflate_ctx *)calloc(1, sizeof(libdeflate_ctx));
+  const JNIEnv toEnv = *env;
+  libdeflate_ctx *lctx = calloc(1, sizeof(libdeflate_ctx));
+
   if (!lctx) {
     throwOutOfMemoryError(env, "Failed to allocate context");
     return 0;
   }
   if (compress) {
     lctx->compressor = libdeflate_alloc_compressor(level);
+
     if (!lctx->compressor) {
       free(lctx);
       throwOutOfMemoryError(env, "Failed to allocate compressor");
@@ -87,64 +92,72 @@ jlong JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_init(
     }
   } else {
     lctx->decompressor = libdeflate_alloc_decompressor();
+
     if (!lctx->decompressor) {
       free(lctx);
       throwOutOfMemoryError(env, "Failed to allocate decompressor");
       return 0;
     }
   }
-  return (jlong)(intptr_t)lctx;
+  return (intptr_t)lctx;
 }
 
 jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(
     JNIEnv *env, jobject obj, jlong ctx, jlong in, jint inLength, jlong out,
     jint outLength, jboolean compress) {
-  libdeflate_ctx *lctx = (libdeflate_ctx *)(intptr_t)ctx;
+  const JNIEnv toEnv = *env;
+  libdeflate_ctx *lctx = (libdeflate_ctx *)ctx;
+  const byte *in_ptr = (byte *)in;
+  byte *out_ptr = (byte *)out;
 
-  (*env)->SetIntField(env, obj, consumedID, 0);
+  toEnv->SetIntField(env, obj, consumedID, 0);
 
   if (compress) {
     if (!lctx->compressed_buf) {
-      size_t bound =
-          libdeflate_zlib_compress_bound(lctx->compressor, (size_t)inLength);
-      lctx->compressed_buf = (byte *)malloc(bound);
+      size_t bound = libdeflate_zlib_compress_bound(lctx->compressor, inLength);
+
+      lctx->compressed_buf = malloc(bound);
       if (!lctx->compressed_buf) {
         throwOutOfMemoryError(env, "Failed to allocate compression buffer");
         return -1;
       }
+
       size_t actual = libdeflate_zlib_compress(
-          lctx->compressor, (const void *)(intptr_t)in, (size_t)inLength,
-          lctx->compressed_buf, bound);
+          lctx->compressor, in_ptr, inLength, lctx->compressed_buf, bound);
+
       if (actual == 0) {
         throwException(env, "compress returned 0", 0);
         return -1;
       }
+
       lctx->compressed_size = actual;
       lctx->compressed_offset = 0;
-      (*env)->SetIntField(env, obj, consumedID, inLength);
+      toEnv->SetIntField(env, obj, consumedID, inLength);
     }
     size_t remaining = lctx->compressed_size - lctx->compressed_offset;
-    size_t to_copy =
-        remaining < (size_t)outLength ? remaining : (size_t)outLength;
-    memcpy((void *)(intptr_t)out,
-           lctx->compressed_buf + lctx->compressed_offset, to_copy);
+    size_t to_copy = remaining < outLength ? remaining : outLength;
+
+    memmove(out_ptr, lctx->compressed_buf + lctx->compressed_offset, to_copy);
+
     lctx->compressed_offset += to_copy;
     if (lctx->compressed_offset >= lctx->compressed_size) {
-      (*env)->SetBooleanField(env, obj, finishedID, JNI_TRUE);
+      toEnv->SetBooleanField(env, obj, finishedID, JNI_TRUE);
     }
-    return (jint)to_copy;
+
+    return to_copy;
   } else {
     size_t actual_in = 0;
     size_t actual_out = 0;
     enum libdeflate_result result = libdeflate_zlib_decompress_ex(
-        lctx->decompressor, (const void *)(intptr_t)in, (size_t)inLength,
-        (void *)(intptr_t)out, (size_t)outLength, &actual_in, &actual_out);
+        lctx->decompressor, in_ptr, inLength, out_ptr,
+        (size_t)outLength, &actual_in, &actual_out);
+
     if (result != LIBDEFLATE_SUCCESS) {
-      throwException(env, "decompress failed", (int)result);
+      throwException(env, "decompress failed", result);
       return -1;
     }
-    (*env)->SetIntField(env, obj, consumedID, (jint)actual_in);
-    (*env)->SetBooleanField(env, obj, finishedID, JNI_TRUE);
-    return (jint)actual_out;
+    toEnv->SetIntField(env, obj, consumedID, actual_in);
+    toEnv->SetBooleanField(env, obj, finishedID, JNI_TRUE);
+    return actual_out;
   }
 }
