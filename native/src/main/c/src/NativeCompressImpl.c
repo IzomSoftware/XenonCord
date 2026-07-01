@@ -73,7 +73,7 @@ void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_end(
 
 jlong JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_init(
     JNIEnv *env, jobject obj, jboolean compress, jint level) {
-  libdeflate_ctx *lctx = (libdeflate_ctx *)malloc(sizeof(libdeflate_ctx));
+  libdeflate_ctx *lctx = (libdeflate_ctx *)calloc(1, sizeof(libdeflate_ctx));
   if (!lctx) {
     throwOutOfMemoryError(env, "Failed to allocate context");
     return 0;
