@@ -2,9 +2,6 @@
 #include <libdeflate.h>
 #include <stdlib.h>
 #include <string.h>
-#if !defined(__aarch64__)
-#include "cpuid_helper.h"
-#endif
 #include "net_md_5_bungee_jni_zlib_NativeCompressImpl.h"
 
 typedef unsigned char byte;
