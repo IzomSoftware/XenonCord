@@ -1,8 +1,8 @@
+#include "net_md_5_bungee_jni_zlib_NativeCompressImpl.h"
 #include "shared.h"
 #include <libdeflate.h>
 #include <stdlib.h>
 #include <string.h>
-#include "net_md_5_bungee_jni_zlib_NativeCompressImpl.h"
 
 typedef unsigned char byte;
 
@@ -146,8 +146,8 @@ jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(
     size_t actual_in = 0;
     size_t actual_out = 0;
     enum libdeflate_result result = libdeflate_zlib_decompress_ex(
-        lctx->decompressor, in_ptr, inLength, out_ptr,
-        (size_t)outLength, &actual_in, &actual_out);
+        lctx->decompressor, in_ptr, inLength, out_ptr, (size_t)outLength,
+        &actual_in, &actual_out);
 
     if (result != LIBDEFLATE_SUCCESS) {
       throwException(env, "decompress failed", result);

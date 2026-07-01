@@ -4,7 +4,8 @@
 
 void throwOutOfMemoryError(JNIEnv *env, const char *msg) {
   const JNIEnv toEnv = *env;
-  const jclass exceptionClass = toEnv->FindClass(env, "java/lang/OutOfMemoryError");
+  const jclass exceptionClass =
+      toEnv->FindClass(env, "java/lang/OutOfMemoryError");
   if (!exceptionClass) {
     // If the proxy ran out of memory, loading this class may fail
     fprintf(stderr, "OUT OF MEMORY: %s\n", msg);

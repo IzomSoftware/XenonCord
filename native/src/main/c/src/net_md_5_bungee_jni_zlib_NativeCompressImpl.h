@@ -12,48 +12,52 @@ extern "C" {
  * Method:    initFields
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_initFields
-  (JNIEnv *, jclass);
+JNIEXPORT void JNICALL
+Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_initFields(JNIEnv *, jclass);
 
 /*
  * Class:     net_md_5_bungee_jni_zlib_NativeCompressImpl
  * Method:    checkSupported
  * Signature: ()Z
  */
-JNIEXPORT jboolean JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_checkSupported
-  (JNIEnv *, jobject);
+JNIEXPORT jboolean JNICALL
+Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_checkSupported(JNIEnv *,
+                                                                 jobject);
 
 /*
  * Class:     net_md_5_bungee_jni_zlib_NativeCompressImpl
  * Method:    end
  * Signature: (JZ)V
  */
-JNIEXPORT void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_end
-  (JNIEnv *, jobject, jlong, jboolean);
+JNIEXPORT void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_end(
+    JNIEnv *, jobject, jlong, jboolean);
 
 /*
  * Class:     net_md_5_bungee_jni_zlib_NativeCompressImpl
  * Method:    reset
  * Signature: (JZ)V
  */
-JNIEXPORT void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_reset
-  (JNIEnv *, jobject, jlong, jboolean);
+JNIEXPORT void JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_reset(
+    JNIEnv *, jobject, jlong, jboolean);
 
 /*
  * Class:     net_md_5_bungee_jni_zlib_NativeCompressImpl
  * Method:    init
  * Signature: (ZI)J
  */
-JNIEXPORT jlong JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_init
-  (JNIEnv *, jobject, jboolean, jint);
+JNIEXPORT jlong JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_init(
+    JNIEnv *, jobject, jboolean, jint);
 
 /*
  * Class:     net_md_5_bungee_jni_zlib_NativeCompressImpl
  * Method:    process
  * Signature: (JJIJIZ)I
  */
-JNIEXPORT jint JNICALL Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process
-  (JNIEnv *, jobject, jlong, jlong, jint, jlong, jint, jboolean);
+JNIEXPORT jint JNICALL
+Java_net_md_15_bungee_jni_zlib_NativeCompressImpl_process(JNIEnv *, jobject,
+                                                          jlong, jlong, jint,
+                                                          jlong, jint,
+                                                          jboolean);
 
 #ifdef __cplusplus
 }
