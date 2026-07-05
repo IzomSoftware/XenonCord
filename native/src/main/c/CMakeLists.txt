@@ -29,7 +29,7 @@ target_include_directories(
   PRIVATE ${MBEDTLS}/include ${JAVA_HOME}/include/ ${JAVA_HOME}/include/linux)
 
 target_link_libraries(native-cipher
-                      ${MBEDTLS}/library/libmbedtls.a)
+                      ${MBEDTLS}/library/libmbedcrypto.a)
 
 target_include_directories(
   native-compress
