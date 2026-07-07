@@ -43,8 +43,7 @@ public enum VelocityForwardingUtil {
                 }
             }
 
-            byte[] forwardingSecret = BungeeCord.getInstance().getConfig().getForwardingSecret();
-            SecretKey key = new SecretKeySpec(forwardingSecret, "HmacSHA256");
+            SecretKey key = new SecretKeySpec(BungeeCord.getInstance().getConfig().getForwardingSecret().getBytes(), "HmacSHA256");
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(key);
             mac.update(buf.array(), buf.arrayOffset(), buf.readableBytes());

@@ -252,9 +252,8 @@ public class ServerConnector extends PacketHandler {
             // Waterfall start: Forwarding rework
             if (BungeeCord.getInstance().config.getForwardingMode() == ForwardingMode.BUNGEEGUARD) {
                 List<Property> temp = new ArrayList<>(Arrays.asList(properties));
-                temp.add(new Property("bungeeguard-token", new String(
-                        BungeeCord.getInstance().getConfig().getForwardingSecret(),
-                        StandardCharsets.UTF_8), null));
+                temp.add(new Property("bungeeguard-token",
+                        BungeeCord.getInstance().getConfig().getForwardingSecret(), null));
                 properties = temp.toArray(new Property[0]);
             }
             // Waterfall end: Forwarding rework
