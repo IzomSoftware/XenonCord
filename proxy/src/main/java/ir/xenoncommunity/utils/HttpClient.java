@@ -42,6 +42,8 @@ public class HttpClient {
             try {
                 ArrayList<String> string = Lists.newArrayList();
                 URLConnection ec = url.openConnection();
+                ec.setConnectTimeout(10000);
+                ec.setReadTimeout(10000);
                 ec.setRequestProperty("user-agent", "Mozilla/5.0 (X11; Linux x86_64; rv:136.0) Gecko/20100101 Firefox/136.0");
                 ec.setRequestProperty("Host", url.getHost());
                 ec.setDoOutput(true);

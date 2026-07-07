@@ -138,7 +138,6 @@ public class UpstreamBridge extends PacketHandler {
     {
         AtomicBoolean empty = new AtomicBoolean(true);
         String msg = message;
-        XenonCore.instance.getTaskManager().add(() -> {
             for (int index = 0, length = msg.length(); index < length; index++) {
                 char c = msg.charAt(index);
                 if (!AllowedCharacters.isChatAllowedCharacter(c)) {
@@ -152,7 +151,6 @@ public class UpstreamBridge extends PacketHandler {
                 con.disconnect("Chat message is empty");
                 throw CancelSendSignal.INSTANCE;
             }
-        });
 
         ChatEvent chatEvent = new ChatEvent(con, con.getServer(), message);
         if (!bungee.getPluginManager().callEvent(chatEvent).isCancelled()) {
