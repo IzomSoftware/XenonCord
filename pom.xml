@@ -1,5 +1,6 @@
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.waterfallmc</groupId>
@@ -86,8 +87,8 @@
     <properties>
         <build.number>unknown</build.number>
         <lombok.version>1.18.46</lombok.version>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -162,7 +163,8 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Use latest version of the javadoc plugin, fixes some issues with the javadoc tool on recent JDK builds on macOS at least -->
+            <!-- Use latest version of the javadoc plugin, fixes some issues with the javadoc tool
+            on recent JDK builds on macOS at least -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -248,9 +250,11 @@
                             <rules>
                                 <dependencyConvergence>
                                     <excludes>
-                                        <!-- org.apache.maven:maven-resolver-provider is inconsistent -->
+                                        <!-- org.apache.maven:maven-resolver-provider is
+                                        inconsistent -->
                                         <exclude>org.apache.commons:commons-lang3</exclude>
-                                        <!-- org.apache.maven:maven-resolver-transport-http is inconsistent -->
+                                        <!-- org.apache.maven:maven-resolver-transport-http is
+                                        inconsistent -->
                                         <exclude>org.apache.httpcomponents:httpcore</exclude>
                                     </excludes>
                                 </dependencyConvergence>
@@ -389,10 +393,12 @@
                                     <goal>jar</goal>
                                 </goals>
                                 <configuration>
-                                    <!-- lombok does not add @return or @param which causes warnings, so ignore -->
+                                    <!-- lombok does not add @return or @param which causes
+                                    warnings, so ignore -->
                                     <doclint>none</doclint>
                                     <sourcepath>${project.build.directory}/delombok</sourcepath>
-                                    <additionalJOption>--no-module-directories</additionalJOption> <!-- Waterfall -->
+                                    <additionalJOption>--no-module-directories</additionalJOption> <!--
+                                    Waterfall -->
                                 </configuration>
                             </execution>
                         </executions>
