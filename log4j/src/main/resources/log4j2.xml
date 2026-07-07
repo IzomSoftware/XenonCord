@@ -4,10 +4,10 @@
         <TerminalConsole name="TerminalConsole">
             <PatternLayout>
                 <LoggerNamePatternSelector
-                        defaultPattern="%highlightError{[%d{HH:mm:ss} %level] [%logger]: %paperMinecraftFormatting{%message}%n%xEx}">
+                        defaultPattern="%highlightError{[%d{HH:mm:ss} %level] [%logger]: %paperMinecraftFormatting{%msg}%n%xEx}">
                     <!-- Log root and BungeeCord loggers without prefix -->
                     <PatternMatch key=",BungeeCord"
-                                  pattern="%highlightError{[%d{HH:mm:ss} %level]: %paperMinecraftFormatting{%message}%n%xEx}"/>
+                                  pattern="%highlightError{[%d{HH:mm:ss} %level]: %paperMinecraftFormatting{%msg}%n%xEx}"/>
                 </LoggerNamePatternSelector>
             </PatternLayout>
         </TerminalConsole>
@@ -15,10 +15,10 @@
                                  immediateFlush="false">
             <PatternLayout>
                 <LoggerNamePatternSelector
-                        defaultPattern="[%d{HH:mm:ss}] [%t/%level] [%logger]: %paperMinecraftFormatting{%message}{strip}%n">
+                        defaultPattern="[%d{HH:mm:ss}] [%t/%level] [%logger]: %paperMinecraftFormatting{%msg}{strip}%n">
                     <!-- Log root and BungeeCord loggers without prefix -->
                     <PatternMatch key=",BungeeCord"
-                                  pattern="[%d{HH:mm:ss}] [%t/%level]: %paperMinecraftFormatting{%message}{strip}%n"/>
+                                  pattern="[%d{HH:mm:ss}] [%t/%level]: %paperMinecraftFormatting{%msg}{strip}%n"/>
                 </LoggerNamePatternSelector>
             </PatternLayout>
             <Policies>
