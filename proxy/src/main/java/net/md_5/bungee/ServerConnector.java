@@ -2,9 +2,7 @@ package net.md_5.bungee;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import io.github.waterfallmc.waterfall.conf.WaterfallConfiguration;
 import io.github.waterfallmc.waterfall.forwarding.ForwardingMode;
-import io.github.waterfallmc.waterfall.forwarding.VelocityForwardingUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import lombok.Getter;
@@ -36,6 +34,7 @@ import net.md_5.bungee.protocol.util.Either;
 import net.md_5.bungee.util.AddressUtil;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
+import net.md_5.bungee.util.VelocityForwardingUtil;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -254,7 +253,7 @@ public class ServerConnector extends PacketHandler {
             if (BungeeCord.getInstance().config.getForwardingMode() == ForwardingMode.BUNGEEGUARD) {
                 List<Property> temp = new ArrayList<>(Arrays.asList(properties));
                 temp.add(new Property("bungeeguard-token", new String(
-                        ((WaterfallConfiguration) BungeeCord.getInstance().config).getForwardingSecret(),
+                        BungeeCord.getInstance().getConfig().getForwardingSecret(),
                         StandardCharsets.UTF_8), null));
                 properties = temp.toArray(new Property[0]);
             }

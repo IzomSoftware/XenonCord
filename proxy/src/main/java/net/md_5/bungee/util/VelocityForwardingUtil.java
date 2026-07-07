@@ -1,6 +1,5 @@
-package io.github.waterfallmc.waterfall.forwarding;
+package net.md_5.bungee.util;
 
-import io.github.waterfallmc.waterfall.conf.WaterfallConfiguration;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -44,7 +43,7 @@ public enum VelocityForwardingUtil {
                 }
             }
 
-            byte[] forwardingSecret = ((WaterfallConfiguration) BungeeCord.getInstance().config).getForwardingSecret();
+            byte[] forwardingSecret = BungeeCord.getInstance().getConfig().getForwardingSecret();
             SecretKey key = new SecretKeySpec(forwardingSecret, "HmacSHA256");
             Mac mac = Mac.getInstance("HmacSHA256");
             mac.init(key);

@@ -1,3 +1,9 @@
+/*
+ * Since Release 0.0.56
+ * We're going to remove the usage of this class inside XenonCord.
+ * It's only kept in order to keep compatibility with plugins.
+ */
+
 package net.md_5.bungee.conf;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;

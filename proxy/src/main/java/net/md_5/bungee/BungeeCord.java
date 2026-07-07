@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.github.waterfallmc.waterfall.conf.WaterfallConfiguration;
 import io.github.waterfallmc.waterfall.event.ProxyExceptionEvent;
 import io.github.waterfallmc.waterfall.exception.ProxyPluginEnableDisableException;
 import io.netty.bootstrap.ServerBootstrap;
@@ -73,7 +72,7 @@ public class BungeeCord extends ProxyServer {
      * Configuration.
      */
     @Getter
-    public final Configuration config = new WaterfallConfiguration();
+    public final Configuration config = new Configuration();
     /**
      * Plugin manager.
      */
