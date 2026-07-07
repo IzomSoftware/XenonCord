@@ -9,6 +9,8 @@ import lombok.Getter;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.event.EventHandler;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -19,22 +21,20 @@ import java.util.regex.Pattern;
 @ModuleInfo(name = "AntiProxy", version = 1.0, description = "Restricts connections from known proxies")
 public class AntiProxyModule extends ModuleBase {
 
-
     private final Pattern ipPattern = Pattern.compile("\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b");
 
     @Getter
     private final ConcurrentLinkedQueue<String> proxyList = new ConcurrentLinkedQueue<>();
-
 
     @Override
     public void onInit() {
         if (!getConfig().getModules().getAnti_proxy_module().isEnabled())
             return;
         getServer().getPluginManager().registerListener(null, this);
-        getTaskManager().repeatingTask(this::fetchProxies, 0, getConfig().getModules().getAnti_proxy_module().getUpdate_interval(), TimeUnit.MINUTES);
+        getTaskManager().repeatingTask(this::fetchProxies, 0,
+                getConfig().getModules().getAnti_proxy_module().getUpdate_interval(), TimeUnit.SECONDS);
 
     }
-
 
     public void fetchProxies() {
         getLogger().info(Colorize.console("&bFetching proxies from config links...."));
@@ -49,13 +49,21 @@ public class AntiProxyModule extends ModuleBase {
                     }
                 }
                 getLogger().info(Colorize.console(String.format("&6Fetched &c%s &aTotal: &4%d", s, fetchList.size())));
+            } catch (RuntimeException e) {
+                if (e.getCause() instanceof FileNotFoundException) {
+                    System.out.println(
+                            "Error while fetching proxy URLS. make sure URLs are pointing to correct repos/lists: EOF Exception");
+                } else if (e.getCause() instanceof IOException) {
+                     System.out.println(
+                            "Error while fetching proxy URLS. make sure URLs are pointing to correct repos/lists: IO Exception");
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        getLogger().info(Colorize.console(String.format("&bFetching DONE! total cached proxies: %d", proxyList.size())));
+        getLogger()
+                .info(Colorize.console(String.format("&bFetching DONE! total cached proxies: %d", proxyList.size())));
     }
-
 
     @EventHandler
     public void onHandshake(PlayerHandshakeEvent event) {

@@ -40,7 +40,7 @@ public class XenonCore {
         Language.init();
         final StringBuilder sb = new StringBuilder();
         try {
-            HttpClient.get(new URL("https://api.github.com/repos/SyNdicateFoundation/XenonCord/releases/latest")).get().forEach(
+            HttpClient.get(new URL("https://api.github.com/repos/IzomSoftware/XenonCord/releases/latest")).get().forEach(
                     sb::append
             );
 
@@ -60,7 +60,7 @@ public class XenonCore {
                         "/ /^\\ \\  __/ | | | (_) | | | | \\__/\\ (_) | | | (_| | \n" +
                         "\\/   \\/\\___|_| |_|\\___/|_| |_|\\____/\\___/|_|  \\__,_| \n" +
                         "        \n" +
-                        "       &av%s - &cBy SyNdicateFoundation\n", this.version))));
+                        "       &av%s - &cBy IzomSoftware\n", this.version))));
 
 
     }
