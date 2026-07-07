@@ -171,14 +171,6 @@ public interface ProxyConfig {
     int getThrottle();
 
     /**
-     * Whether the proxy will forward the players information (UUID, IP)
-     *
-     * @return should we forward player information
-     */
-    @Deprecated
-    boolean isIpForward();
-
-    /**
      * The encoded favicon.
      *
      * @return the encoded favicon

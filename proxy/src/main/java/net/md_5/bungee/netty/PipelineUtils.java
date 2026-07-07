@@ -177,6 +177,7 @@ public class PipelineUtils {
             } catch (ChannelException ex) {
             }
             ch.config().setOption(ChannelOption.TCP_NODELAY, true);
+            ch.config().setOption(ChannelOption.TCP_FASTOPEN, BungeeCord.getInstance().getConfig().getTcpFastOpen());
             ch.config().setWriteBufferWaterMark(MARK);
 
             ch.pipeline().addLast(FRAME_DECODER, new Varint21FrameDecoder());

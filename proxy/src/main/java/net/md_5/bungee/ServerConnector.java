@@ -237,7 +237,7 @@ public class ServerConnector extends PacketHandler {
         final Handshake copiedHandshake = new Handshake(originalHandshake.getProtocolVersion(),
                 originalHandshake.getHost(), originalHandshake.getPort(), 2);
 
-        if (BungeeCord.getInstance().config.isIpForward() && user.getSocketAddress() instanceof InetSocketAddress) {
+        if (!bungee.getConfig().getForwardingMode().equals(ForwardingMode.NONE) && user.getSocketAddress() instanceof InetSocketAddress) {
             String newHost = copiedHandshake.getHost() + "\00" + AddressUtil.sanitizeAddress(user.getAddress()) + "\00"
                     + user.getUUID();
 
@@ -320,7 +320,7 @@ public class ServerConnector extends PacketHandler {
     @Override
     public void handle(LoginSuccess loginSuccess) throws Exception {
         // Waterfall start: Forwarding rework
-        if (!didForwardInformation && BungeeCord.getInstance().config.isIpForward()
+        if (!didForwardInformation && !bungee.getConfig().getForwardingMode().equals(ForwardingMode.NONE)
                 && BungeeCord.getInstance().config.getForwardingMode() == ForwardingMode.VELOCITY_MODERN) {
             throw new QuietException(VelocityForwardingUtil.MODERN_IP_FORWARDING_FAILURE);
         }
@@ -494,7 +494,7 @@ public class ServerConnector extends PacketHandler {
     @Override
     public void handle(LoginPayloadRequest loginPayloadRequest) {
         // Waterfall start: Forwarding rework
-        if (!didForwardInformation && BungeeCord.getInstance().config.isIpForward()
+        if (!didForwardInformation && !bungee.getConfig().getForwardingMode().equals(ForwardingMode.NONE)
                 && BungeeCord.getInstance().config.getForwardingMode() == ForwardingMode.VELOCITY_MODERN
                 && loginPayloadRequest.getChannel().equals(VelocityForwardingUtil.VELOCITY_IP_FORWARDING_CHANNEL)) {
 

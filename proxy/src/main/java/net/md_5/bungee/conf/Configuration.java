@@ -50,7 +50,6 @@ public class Configuration implements ProxyConfig {
     private int remotePingTimeout = 5000;
     private int throttle = 4000;
     private int throttleLimit = 3;
-    private boolean ipForward;
     private Favicon favicon;
     private int compressionThreshold = 256;
     private boolean preventProxyConnections;
@@ -68,7 +67,7 @@ public class Configuration implements ProxyConfig {
     private int pluginChannelLimit = 128;
     private int pluginChannelNameLimit = 128;
 
-    private boolean tcpFastOpen = true;
+    private int tcpFastOpen = 3;
 
     public void load() {
         synchronized (serversLock) {
@@ -97,7 +96,7 @@ public class Configuration implements ProxyConfig {
             remotePingTimeout = adapter.getInt("remote_ping_timeout", remotePingTimeout);
             throttle = adapter.getInt("connection_throttle", throttle);
             throttleLimit = adapter.getInt("connection_throttle_limit", throttleLimit);
-            ipForward = adapter.getBoolean("ip_forward", ipForward);
+
             compressionThreshold = adapter.getInt("network_compression_threshold", compressionThreshold);
             preventProxyConnections = adapter.getBoolean("prevent_proxy_connections", preventProxyConnections);
             forgeSupport = adapter.getBoolean("forge_support", forgeSupport);
@@ -113,31 +112,30 @@ public class Configuration implements ProxyConfig {
             disableTabListRewrite = adapter.getBoolean("disable_tab_list_rewrite", disableTabListRewrite);
             pluginChannelLimit = adapter.getInt("registered_plugin_channels_limit", pluginChannelLimit);
             pluginChannelNameLimit = adapter.getInt("plugin_channel_name_limit", pluginChannelNameLimit);
-            tcpFastOpen = adapter.getBoolean("tcpFastOpen", tcpFastOpen);
+            tcpFastOpen = adapter.getInt("tcpFastOpen", 3);
             forwardingMode = ForwardingMode
                     .valueOf(adapter.getString("forwarding_mode", forwardingMode.name()).toUpperCase());
 
             final Logger logger = XenonCore.instance.getLogger();
-            if (ipForward) {
-                switch (forwardingMode) {
-                    case BUNGEECORD_LEGACY:
-                        logger.info("Forwarding mode is set to Bungeecord/Legacy forwarding. " +
-                                "It is recommended to use another forwarding method to mitigate information spoofing attacks.");
-                        break;
-                    case BUNGEEGUARD:
-                        logger.info("Forwarding mode is set to BungeeGuard forwarding. " +
-                                "Please ensure all connected servers make use of BungeeGuard for optimal security.");
-                        break;
-                    case VELOCITY_MODERN:
-                        logger.info("Forwarding mode is set to modern/Velocity forwarding. " +
-                                "If you need to use versions older than 1.13 please use another forwarding type.");
-                        break;
-                }
-            } else {
-                logger.warn("Information forwarding (ip-forwarding) is disabled. " +
-                        "Player UUIDs may not be consistent across the servers. " +
-                        "For the optimal experience please enable ip_forward in the config.yml and " +
-                        "configure forwarding and on your servers.");
+            switch (forwardingMode) {
+                case BUNGEECORD_LEGACY:
+                    logger.info("Forwarding mode is set to Bungeecord/Legacy forwarding. " +
+                            "It is recommended to use another forwarding method to mitigate information spoofing attacks.");
+                    break;
+                case BUNGEEGUARD:
+                    logger.info("Forwarding mode is set to BungeeGuard forwarding. " +
+                            "Please ensure all connected servers make use of BungeeGuard for optimal security.");
+                    break;
+                case VELOCITY_MODERN:
+                    logger.info("Forwarding mode is set to modern/Velocity forwarding. " +
+                            "If you need to use versions older than 1.13 please use another forwarding type.");
+                    break;
+                case NONE:
+                    logger.warn("Information forwarding (ip-forwarding) is disabled. " +
+                            "Player UUIDs may not be consistent across the servers. " +
+                            "For the optimal experience please enable ip_forward in the config.yml and " +
+                            "configure forwarding and on your servers.");
+                    break;
             }
 
             forwardingSecret = adapter.getString("forwarding_secret", Arrays.toString(forwardingSecret)).getBytes();
@@ -257,6 +255,9 @@ public class Configuration implements ProxyConfig {
         return pluginChannelNameLimit;
     }
 
+    public int getTcpFastOpen() {
+        return tcpFastOpen;
+    }
     // Waterfall end
 
     @Override

@@ -2,6 +2,8 @@ package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
+
+import io.github.waterfallmc.waterfall.forwarding.ForwardingMode;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.EventLoop;
 import ir.xenoncommunity.XenonCore;
@@ -428,7 +430,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
         if (uniqueId == null)
             uniqueId = offlineId;
 
-        rewriteId = (bungee.config.isIpForward()) ? uniqueId : offlineId;
+        rewriteId = (!bungee.config.getForwardingMode().equals(ForwardingMode.NONE)) ? uniqueId : offlineId;
 
         if (BungeeCord.getInstance().config.isEnforceSecureProfile()) {
             if (getVersion() >= ProtocolConstants.MINECRAFT_1_19_1 && getVersion() < ProtocolConstants.MINECRAFT_1_19_3) {

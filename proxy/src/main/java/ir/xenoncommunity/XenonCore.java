@@ -1,6 +1,8 @@
 package ir.xenoncommunity;
 
 import com.google.gson.JsonParser;
+
+import io.github.waterfallmc.waterfall.forwarding.ForwardingMode;
 import ir.xenoncommunity.utils.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -61,8 +63,6 @@ public class XenonCore {
                         "\\/   \\/\\___|_| |_|\\___/|_| |_|\\____/\\___/|_|  \\__,_| \n" +
                         "        \n" +
                         "       &av%s - &cBy IzomSoftware\n", this.version))));
-
-
     }
 
     /**
@@ -70,7 +70,9 @@ public class XenonCore {
      */
     public void init(long startTime) {
         ClassHelper.registerModules();
-        getLogger().info("Successfully booted! Loading the proxy server with plugins took: {}ms", System.currentTimeMillis() - startTime);
+        getLogger().info("Successfully booted! Loading the proxy server with plugins took: {}ms",
+                System.currentTimeMillis() - startTime);
+
     }
 
     /**
