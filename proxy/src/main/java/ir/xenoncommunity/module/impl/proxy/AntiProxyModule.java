@@ -49,11 +49,12 @@ public class AntiProxyModule extends ModuleBase {
                     }
                 }
                 getLogger().info(Colorize.console(String.format("&6Fetched &c%s &aTotal: &4%d", s, fetchList.size())));
-            } catch (RuntimeException e) {
-                System.out.println(
-                        "Error while fetching proxy URLS. make sure URLs are pointing to correct repos/lists.");
             } catch (Exception e) {
-                e.printStackTrace();
+                if (e.getCause() instanceof RuntimeException) {
+                    getLogger().info("Error while fetching proxy URLS. make sure URLs are pointing to correct repos/lists.");
+                } else {
+                    e.printStackTrace();
+                }
             }
         }
         getLogger()
