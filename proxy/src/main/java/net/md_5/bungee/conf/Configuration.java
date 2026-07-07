@@ -63,7 +63,7 @@ public class Configuration implements ProxyConfig {
     private boolean disableModernTabLimiter = true;
     private boolean disableTabListRewrite = true;
     private ForwardingMode forwardingMode = ForwardingMode.BUNGEECORD_LEGACY;
-    private byte[] forwardingSecret = Util.randomAlphanumericSequence(12);
+    private String forwardingSecret = new String(Util.randomAlphanumericSequence(12), StandardCharsets.UTF_8);
     private int pluginChannelLimit = 128;
     private int pluginChannelNameLimit = 128;
 
@@ -138,7 +138,7 @@ public class Configuration implements ProxyConfig {
                     break;
             }
 
-            forwardingSecret = adapter.getString("forwarding_secret", Arrays.toString(forwardingSecret)).getBytes();
+            forwardingSecret = adapter.getString("forwarding_secret", forwardingSecret);
 
             Preconditions.checkArgument(listeners != null && !listeners.isEmpty(), "No listeners defined.");
 
