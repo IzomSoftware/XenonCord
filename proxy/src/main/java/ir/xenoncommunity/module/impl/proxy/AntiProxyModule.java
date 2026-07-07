@@ -9,6 +9,7 @@ import lombok.Getter;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.event.EventHandler;
 
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -50,7 +51,7 @@ public class AntiProxyModule extends ModuleBase {
                 }
                 getLogger().info(Colorize.console(String.format("&6Fetched &c%s &aTotal: &4%d", s, fetchList.size())));
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println(e.getCause());
             }
         }
         getLogger().info(Colorize.console(String.format("&bFetching DONE! total cached proxies: %d", proxyList.size())));
