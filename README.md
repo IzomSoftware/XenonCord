@@ -21,7 +21,7 @@ BungeeCord has a huge ton of design flaws (e.g. Entity rewrite) which causes it 
 The goal of XenonCord is to instead of reinventing the wheel, fix these design flaws, improve the existing base, and make it even better than it was ever before.
 At first, XenonCord's goal was to implement features alongside with optimizations, however after a while we've decided to change that behaviour & instead ship a general purpose Proxy.
 Our key goal is to keep it simple & modular, we hate bloatware & therefore we'll not contribute to it.
-We only implement features into mainstream which **really** require us to do so (e.g. domain whitelisting).
+We only implement features into mainstream which **really** require us to do so (e.g. domain whitelisting). our another goal is to keep the source code compatible with java 8.
 
 ## ✨ Key Features  
 
