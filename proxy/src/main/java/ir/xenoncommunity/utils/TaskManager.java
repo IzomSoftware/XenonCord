@@ -41,8 +41,6 @@ public class TaskManager {
             } catch (Exception e) {
                 XenonCore.instance.logdebugerror("Error while handing a queued task");
                 e.printStackTrace();
-            } finally {
-                Thread.currentThread().interrupt();
             }
         });
     }

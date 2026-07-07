@@ -50,13 +50,8 @@ public class AntiProxyModule extends ModuleBase {
                 }
                 getLogger().info(Colorize.console(String.format("&6Fetched &c%s &aTotal: &4%d", s, fetchList.size())));
             } catch (RuntimeException e) {
-                if (e.getCause() instanceof FileNotFoundException) {
-                    System.out.println(
-                            "Error while fetching proxy URLS. make sure URLs are pointing to correct repos/lists: EOF Exception");
-                } else if (e.getCause() instanceof IOException) {
-                     System.out.println(
-                            "Error while fetching proxy URLS. make sure URLs are pointing to correct repos/lists: IO Exception");
-                }
+                System.out.println(
+                        "Error while fetching proxy URLS. make sure URLs are pointing to correct repos/lists.");
             } catch (Exception e) {
                 e.printStackTrace();
             }
