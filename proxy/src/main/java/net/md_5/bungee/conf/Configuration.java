@@ -4,7 +4,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.github.waterfallmc.waterfall.forwarding.ForwardingMode;
-import ir.xenoncommunity.XenonCore;
 import lombok.Getter;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.Util;
@@ -18,7 +17,6 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.util.CaseInsensitiveMap;
 import net.md_5.bungee.util.CaseInsensitiveSet;
-import org.apache.logging.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -115,24 +113,26 @@ public class Configuration implements ProxyConfig {
             forwardingMode = ForwardingMode
                     .valueOf(adapter.getString("forwarding_mode", forwardingMode.name()).toUpperCase());
 
-            final Logger logger = XenonCore.instance.getLogger();
             if (ipForward) {
                 switch (forwardingMode) {
                     case BUNGEECORD_LEGACY:
-                        logger.info("Forwarding mode is set to Bungeecord/Legacy forwarding. " +
-                                "It is recommended to use another forwarding method to mitigate information spoofing attacks.");
+                        ProxyServer.getInstance().getLogger()
+                                .info("Forwarding mode is set to Bungeecord/Legacy forwarding. " +
+                                        "It is recommended to use another forwarding method to mitigate information spoofing attacks.");
                         break;
                     case BUNGEEGUARD:
-                        logger.info("Forwarding mode is set to BungeeGuard forwarding. " +
+                        ProxyServer.getInstance().getLogger().info("Forwarding mode is set to BungeeGuard forwarding. "
+                                +
                                 "Please ensure all connected servers make use of BungeeGuard for optimal security.");
                         break;
                     case VELOCITY_MODERN:
-                        logger.info("Forwarding mode is set to modern/Velocity forwarding. " +
-                                "If you need to use versions older than 1.13 please use another forwarding type.");
+                        ProxyServer.getInstance().getLogger()
+                                .info("Forwarding mode is set to modern/Velocity forwarding. " +
+                                        "If you need to use versions older than 1.13 please use another forwarding type.");
                         break;
                 }
             } else {
-                logger.warn("Information forwarding (ip-forwarding) is disabled. " +
+                ProxyServer.getInstance().getLogger().warning("Information forwarding (ip-forwarding) is disabled. " +
                         "Player UUIDs may not be consistent across the servers. " +
                         "For the optimal experience please enable ip_forward in the config.yml and " +
                         "configure forwarding and on your servers.");
@@ -141,8 +141,10 @@ public class Configuration implements ProxyConfig {
             String secret = adapter.getString("forwarding_secret", "");
             if (secret.isEmpty()) {
                 forwardingSecret = Util.randomAlphanumericSequence(12);
-                logger.warn("No 'forwarding_secret' is defined in config.yml. A random secret has been generated. " +
-                        "Please set 'forwarding_secret' in config.yml to ensure player connections remain stable across restarts.");
+                ProxyServer.getInstance().getLogger()
+                        .warning("No 'forwarding_secret' is defined in config.yml. A random secret has been generated. "
+                                +
+                                "Please set 'forwarding_secret' in config.yml to ensure player connections remain stable across restarts.");
             } else {
                 forwardingSecret = secret.getBytes(StandardCharsets.UTF_8);
             }
@@ -261,8 +263,6 @@ public class Configuration implements ProxyConfig {
     public int getPluginChannelNameLimit() {
         return pluginChannelNameLimit;
     }
-
-    // Waterfall end
 
     @Override
     public synchronized Map<String, ServerInfo> getServersCopy() {
