@@ -13,7 +13,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import net.md_5.bungee.api.ServerLink;
 
 /**
  * Represents a player whose connection is being connected to somewhere else,
@@ -93,7 +92,8 @@ public interface ProxiedPlayer extends Connection, CommandSender {
      *
      * @param target   the new server to connect to
      * @param callback the method called when the connection is complete, or
-     *                 when an exception is encountered. The boolean parameter denotes success
+     *                 when an exception is encountered. The boolean parameter
+     *                 denotes success
      *                 (true) or failure (false).
      */
     void connect(ServerInfo target, Callback<Boolean> callback);
@@ -105,7 +105,8 @@ public interface ProxiedPlayer extends Connection, CommandSender {
      *
      * @param target   the new server to connect to
      * @param callback the method called when the connection is complete, or
-     *                 when an exception is encountered. The boolean parameter denotes success
+     *                 when an exception is encountered. The boolean parameter
+     *                 denotes success
      *                 or failure.
      * @param retry    whether to retry the connection if the initial connection
      *                 fails.
@@ -119,7 +120,8 @@ public interface ProxiedPlayer extends Connection, CommandSender {
      *
      * @param target   the new server to connect to
      * @param callback the method called when the connection is complete, or
-     *                 when an exception is encountered. The boolean parameter denotes success
+     *                 when an exception is encountered. The boolean parameter
+     *                 denotes success
      *                 or failure.
      * @param retry    whether to retry the connection if the initial connection
      *                 fails.
@@ -137,7 +139,8 @@ public interface ProxiedPlayer extends Connection, CommandSender {
      *
      * @param target   the new server to connect to
      * @param callback the method called when the connection is complete, or
-     *                 when an exception is encountered. The boolean parameter denotes success
+     *                 when an exception is encountered. The boolean parameter
+     *                 denotes success
      *                 (true) or failure (false).
      * @param reason   the reason for connecting to the new server
      */
@@ -150,7 +153,8 @@ public interface ProxiedPlayer extends Connection, CommandSender {
      *
      * @param target   the new server to connect to
      * @param callback the method called when the connection is complete, or
-     *                 when an exception is encountered. The boolean parameter denotes success
+     *                 when an exception is encountered. The boolean parameter
+     *                 denotes success
      *                 or failure.
      * @param retry    whether to retry the connection if the initial connection
      *                 fails.
@@ -158,7 +162,8 @@ public interface ProxiedPlayer extends Connection, CommandSender {
      * @param timeout  timeout in milliseconds of the connection created to the
      *                 target server
      */
-    void connect(ServerInfo target, Callback<Boolean> callback, boolean retry, ServerConnectEvent.Reason reason, int timeout);
+    void connect(ServerInfo target, Callback<Boolean> callback, boolean retry, ServerConnectEvent.Reason reason,
+            int timeout);
     // Waterfall end
 
     /**
@@ -326,7 +331,7 @@ public interface ProxiedPlayer extends Connection, CommandSender {
      * </p>
      *
      * @return <code>true</code> if it is known that the user is using a FML
-     * client, <code>false</code> otherwise.
+     *         client, <code>false</code> otherwise.
      */
     boolean isForgeUser();
 
@@ -350,8 +355,9 @@ public interface ProxiedPlayer extends Connection, CommandSender {
      * </p>
      *
      * @return A {@link Map} of mods, where the key is the name of the mod, and
-     * the value is the version. Returns an empty list if the FML handshake has
-     * not occurred for this {@link ProxiedPlayer} yet.
+     *         the value is the version. Returns an empty list if the FML handshake
+     *         has
+     *         not occurred for this {@link ProxiedPlayer} yet.
      */
     Map<String, String> getModList();
 
@@ -360,7 +366,7 @@ public interface ProxiedPlayer extends Connection, CommandSender {
      *
      * @return this player's {@link Scoreboard}
      * @deprecated for internal use only, setters will not have the expected
-     * effect, will not update client state, and may corrupt proxy state
+     *             effect, will not update client state, and may corrupt proxy state
      */
     @Deprecated
     Scoreboard getScoreboard();
@@ -371,8 +377,9 @@ public interface ProxiedPlayer extends Connection, CommandSender {
      * @param cookie the resource location of the cookie, for example
      *               "bungeecord:my_cookie"
      * @return a {@link CompletableFuture} that will be completed when the
-     * Cookie response is received. If the cookie is not set in the client, the
-     * {@link CompletableFuture} will complete with a null value
+     *         Cookie response is received. If the cookie is not set in the client,
+     *         the
+     *         {@link CompletableFuture} will complete with a null value
      * @throws IllegalStateException if the player's version is not at least
      *                               1.20.5
      */
@@ -405,52 +412,65 @@ public interface ProxiedPlayer extends Connection, CommandSender {
      */
     @ApiStatus.Experimental
     void transfer(String host, int port);
+
     /**
      * Gets the client brand of this player.
      * If the player has not sent a brand packet yet, it will return null.
-     *Add commentMore actions
+     * Add commentMore actions
+     * 
      * @return the brand of the client, or null if not received yet
      */
     String getClientBrand();
-
-
-
 
     /**
      * Clear the player's open dialog.
      *
      * @throws IllegalStateException if the players version is not at least
-     * 1.21.6
+     *                               1.21.6
      */
     @ApiStatus.Experimental
     void clearDialog();
-
 
     /**
      * Show a dialog to the player.
      *
      * @param dialog the dialog to show
      * @throws IllegalStateException if the players version is not at least
-     * 1.21.6
+     *                               1.21.6
      */
     @ApiStatus.Experimental
     void showDialog(Dialog dialog);
 
     /**
-
-
+     * 
+     * 
      * Sends server links to the player.
-
-
      *
+     * 
+     * 
      * Note: The links already sent to the player will be overwritten. Also, the
      * backend server is able to override links sent by the proxy.
      *
      * @param serverLinks the server links to send
      * @throws IllegalStateException if the player's version is not at least
-     * 1.21
+     *                               1.21
      */
     void sendServerLinks(List<ServerLink> serverLinks);
+
+    @ApiStatus.Experimental
+    void sendResourcePack(ResourcePackInfo resourcePack);
+
+    /**
+     * Removes a specific resource pack (1.20.5+)
+     */
+    @ApiStatus.Experimental
+    void removeResourcePack(UUID packId);
+
+    /**
+     * Removes ALL resource packs (1.20.5+)
+     */
+    @ApiStatus.Experimental
+    void clearResourcePacks();
 
     /**
      * Represents the player's chat state.

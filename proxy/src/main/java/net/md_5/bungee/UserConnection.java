@@ -24,6 +24,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.dialog.Dialog;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.ResourcePackSendEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import net.md_5.bungee.chat.VersionedComponentSerializer;
 import net.md_5.bungee.connection.InitialHandler;
@@ -50,7 +51,7 @@ import java.util.logging.Level;
 @RequiredArgsConstructor
 public final class UserConnection implements ProxiedPlayer {
 
-    /*========================================================================*/
+    /* ======================================================================== */
     @NonNull
     private final ProxyServer bungee;
     @Getter
@@ -63,7 +64,7 @@ public final class UserConnection implements ProxiedPlayer {
     private final InitialHandler pendingConnection;
     @Getter
     private final Collection<ServerInfo> pendingConnects = new HashSet<>();
-    /*========================================================================*/
+    /* ======================================================================== */
     private final Collection<String> groups = new CaseInsensitiveSet();
     private final Collection<String> permissions = new CaseInsensitiveSet();
     @Getter
@@ -77,12 +78,13 @@ public final class UserConnection implements ProxiedPlayer {
     // Waterfall start
     @Getter
     private final Multimap<Integer, Integer> potions = HashMultimap.create();
-    /*========================================================================*/
+    /* ======================================================================== */
     private final Queue<DefinedPacket> packetQueue = new ArrayDeque<>();
-    /*========================================================================*/
+    /* ======================================================================== */
     @Getter
     @Setter
-    private ServerConnection server;    private final Unsafe unsafe = new Unsafe() {
+    private ServerConnection server;
+    private final Unsafe unsafe = new Unsafe() {
         @Override
         public void sendPacket(DefinedPacket packet) {
             ch.write(packet);
@@ -103,7 +105,7 @@ public final class UserConnection implements ProxiedPlayer {
     @Getter
     @Setter
     private boolean dimensionChange = true;
-    /*========================================================================*/
+    /* ======================================================================== */
     @Getter
     @Setter
     private int ping = 100;
@@ -124,11 +126,11 @@ public final class UserConnection implements ProxiedPlayer {
     @Setter
     private boolean bundling;
 
-    public void toggleBundling()
-    {
+    public void toggleBundling() {
         bundling = !bundling;
     }
-    /*========================================================================*/
+
+    /* ======================================================================== */
     @Getter
     @Setter
     private int clientEntityId;
@@ -141,11 +143,11 @@ public final class UserConnection implements ProxiedPlayer {
     @Getter
     @Setter
     private String lastCommandTabbed;
-    /*========================================================================*/
+    /* ======================================================================== */
     @Getter
     private String displayName;
     private Locale locale;
-    /*========================================================================*/
+    /* ======================================================================== */
     @Getter
     @Setter
     private ForgeClientHandler forgeClientHandler;
@@ -154,11 +156,10 @@ public final class UserConnection implements ProxiedPlayer {
     private ForgeServerHandler forgeServerHandler;
 
     public boolean init() {
-        this.chatSerializer = ChatSerializer.forVersion( getPendingConnection().getVersion() );
+        this.chatSerializer = ChatSerializer.forVersion(getPendingConnection().getVersion());
 
         this.displayName = name;
         tabListHandler = new ServerUnique(this);
-
 
         forgeClientHandler = new ForgeClientHandler(this);
 
@@ -173,8 +174,7 @@ public final class UserConnection implements ProxiedPlayer {
     }
 
     public void sendPacketQueued(DefinedPacket packet) {
-        ch.scheduleIfNecessary(() ->
-        {
+        ch.scheduleIfNecessary(() -> {
             if (ch.isClosed()) {
                 return;
             }
@@ -189,8 +189,7 @@ public final class UserConnection implements ProxiedPlayer {
     }
 
     public void sendQueuedPackets() {
-        ch.scheduleIfNecessary(() ->
-        {
+        ch.scheduleIfNecessary(() -> {
             if (ch.isClosed())
                 return;
 
@@ -268,18 +267,22 @@ public final class UserConnection implements ProxiedPlayer {
         connect(info, callback, retry, ServerConnectEvent.Reason.PLUGIN, timeout);
     }
 
-    public void connect(ServerInfo info, Callback<Boolean> callback, boolean retry, ServerConnectEvent.Reason reason, int timeout) {
+    public void connect(ServerInfo info, Callback<Boolean> callback, boolean retry, ServerConnectEvent.Reason reason,
+            int timeout) {
         this.connect(info, callback, retry, reason, timeout, true);
     }
 
-    public void connect(ServerInfo info, Callback<Boolean> callback, boolean retry, ServerConnectEvent.Reason reason, int timeout, boolean sendFeedback) {
+    public void connect(ServerInfo info, Callback<Boolean> callback, boolean retry, ServerConnectEvent.Reason reason,
+            int timeout, boolean sendFeedback) {
         // Waterfall end
         Preconditions.checkNotNull(info, "info");
 
-        final ServerConnectRequest.Builder builder = ServerConnectRequest.builder().retry(retry).reason(reason).target(info).sendFeedback(sendFeedback); // Waterfall - feedback param
+        final ServerConnectRequest.Builder builder = ServerConnectRequest.builder().retry(retry).reason(reason)
+                .target(info).sendFeedback(sendFeedback); // Waterfall - feedback param
         builder.connectTimeout(timeout); // Waterfall
         if (callback != null)
-            builder.callback((result, error) -> callback.done((result == ServerConnectRequest.Result.SUCCESS) ? Boolean.TRUE : Boolean.FALSE, error));
+            builder.callback((result, error) -> callback
+                    .done((result == ServerConnectRequest.Result.SUCCESS) ? Boolean.TRUE : Boolean.FALSE, error));
 
         connect(builder.build());
     }
@@ -293,7 +296,8 @@ public final class UserConnection implements ProxiedPlayer {
 
     private void connect0(ServerConnectRequest request) {
         final Callback<ServerConnectRequest.Result> callback = request.getCallback();
-        final ServerConnectEvent event = new ServerConnectEvent(this, request.getTarget(), request.getReason(), request);
+        final ServerConnectEvent event = new ServerConnectEvent(this, request.getTarget(), request.getReason(),
+                request);
 
         if (bungee.getPluginManager().callEvent(event).isCancelled()) {
             if (callback != null)
@@ -307,14 +311,16 @@ public final class UserConnection implements ProxiedPlayer {
             if (callback != null)
                 callback.done(ServerConnectRequest.Result.ALREADY_CONNECTED, null);
 
-            if (request.isSendFeedback()) sendMessage(bungee.getTranslation("already_connected")); // Waterfall
+            if (request.isSendFeedback())
+                sendMessage(bungee.getTranslation("already_connected")); // Waterfall
             return;
         }
         if (pendingConnects.contains(target)) {
             if (callback != null)
                 callback.done(ServerConnectRequest.Result.ALREADY_CONNECTING, null);
 
-            if (request.isSendFeedback()) sendMessage(bungee.getTranslation("already_connecting")); // Waterfall
+            if (request.isSendFeedback())
+                sendMessage(bungee.getTranslation("already_connecting")); // Waterfall
             return;
         }
 
@@ -324,14 +330,19 @@ public final class UserConnection implements ProxiedPlayer {
             @Override
             protected void initChannel(Channel ch) throws Exception {
                 PipelineUtils.BASE_SERVERSIDE.initChannel(ch);
-                ch.pipeline().addAfter(PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER, new MinecraftDecoder(Protocol.HANDSHAKE, false, getPendingConnection().getVersion()));
-                ch.pipeline().addAfter(PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER, new MinecraftEncoder(Protocol.HANDSHAKE, false, getPendingConnection().getVersion()));
-                ch.pipeline().get(HandlerBoss.class).setHandler(new ServerConnector(bungee, UserConnection.this, target));
+                ch.pipeline().addAfter(PipelineUtils.FRAME_DECODER, PipelineUtils.PACKET_DECODER,
+                        new MinecraftDecoder(Protocol.HANDSHAKE, false, getPendingConnection().getVersion()));
+                ch.pipeline().addAfter(PipelineUtils.FRAME_PREPENDER, PipelineUtils.PACKET_ENCODER,
+                        new MinecraftEncoder(Protocol.HANDSHAKE, false, getPendingConnection().getVersion()));
+                ch.pipeline().get(HandlerBoss.class)
+                        .setHandler(new ServerConnector(bungee, UserConnection.this, target));
             }
         };
         ChannelFutureListener listener = future -> {
             if (callback != null)
-                callback.done((future.isSuccess()) ? ServerConnectRequest.Result.SUCCESS : ServerConnectRequest.Result.FAIL, future.cause());
+                callback.done(
+                        (future.isSuccess()) ? ServerConnectRequest.Result.SUCCESS : ServerConnectRequest.Result.FAIL,
+                        future.cause());
 
             if (!future.isSuccess()) {
                 future.channel().close();
@@ -340,8 +351,8 @@ public final class UserConnection implements ProxiedPlayer {
                 final ServerInfo def = updateAndGetNextServer(target);
                 if (request.isRetry() && def != null && (getServer() == null || !def.equals(getServer().getInfo()))) {
                     connect(def, (result, error) -> {
-                        if (result && request.isSendFeedback()){
-                            sendMessage( bungee.getTranslation( "fallback_lobby" ) );
+                        if (result && request.isSendFeedback()) {
+                            sendMessage(bungee.getTranslation("fallback_lobby"));
                         }
                     }, true, ServerConnectEvent.Reason.LOBBY_FALLBACK);
                 } else if (dimensionChange) {
@@ -353,20 +364,24 @@ public final class UserConnection implements ProxiedPlayer {
             }
         };
         final Bootstrap b = new Bootstrap()
-                .channelFactory(PipelineUtils.getChannelFactory(target.getAddress())) // Waterfall - netty reflection -> factory
+                .channelFactory(PipelineUtils.getChannelFactory(target.getAddress())) // Waterfall - netty reflection ->
+                                                                                      // factory
                 .group(ch.getHandle().eventLoop())
                 .handler(initializer)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, request.getConnectTimeout())
                 .remoteAddress(target.getAddress());
-        // Windows is bugged, multi homed users will just have to live with random connecting IPs
-        if (getPendingConnection().getListener().isSetLocalAddress() && !PlatformDependent.isWindows() && getPendingConnection().getListener().getSocketAddress() instanceof InetSocketAddress) {
+        // Windows is bugged, multi homed users will just have to live with random
+        // connecting IPs
+        if (getPendingConnection().getListener().isSetLocalAddress() && !PlatformDependent.isWindows()
+                && getPendingConnection().getListener().getSocketAddress() instanceof InetSocketAddress) {
             b.localAddress(getPendingConnection().getListener().getHost().getHostString(), 0);
         }
         b.connect().addListener(listener);
     }
 
     private String connectionFailMessage(Throwable cause) {
-        bungee.getLogger().log(Level.WARNING, "Error occurred processing connection for " + this.name + " " + Util.exception(cause, false)); // Waterfall
+        bungee.getLogger().log(Level.WARNING,
+                "Error occurred processing connection for " + this.name + " " + Util.exception(cause, false)); // Waterfall
         return ""; // Waterfall
     }
 
@@ -386,12 +401,12 @@ public final class UserConnection implements ProxiedPlayer {
     }
 
     public void disconnect0(BaseComponent reason) {
-        if (ch.isClosing()) return;
+        if (ch.isClosing())
+            return;
 
-        bungee.getLogger().log(Level.INFO, "[{0}] disconnected with: {1}", new Object[]
-                {
-                        getName(), BaseComponent.toLegacyText(reason)
-                });
+        bungee.getLogger().log(Level.INFO, "[{0}] disconnected with: {1}", new Object[] {
+                getName(), BaseComponent.toLegacyText(reason)
+        });
 
         ch.close(new Kick(reason));
 
@@ -472,7 +487,7 @@ public final class UserConnection implements ProxiedPlayer {
                 position = ChatMessageType.SYSTEM;
             sendPacketQueued(new SystemChat(message, position.ordinal()));
         } else {
-            sendPacketQueued( new Chat( chatSerializer.toString( message ), (byte) position.ordinal(), sender ) );
+            sendPacketQueued(new Chat(chatSerializer.toString(message), (byte) position.ordinal(), sender));
         }
     }
 
@@ -508,7 +523,9 @@ public final class UserConnection implements ProxiedPlayer {
 
     @Override
     public boolean hasPermission(String permission) {
-        return bungee.getPluginManager().callEvent(new PermissionCheckEvent(this, permission, permissions.contains(permission))).hasPermission();
+        return bungee.getPluginManager()
+                .callEvent(new PermissionCheckEvent(this, permission, permissions.contains(permission)))
+                .hasPermission();
     }
 
     @Override
@@ -556,7 +573,9 @@ public final class UserConnection implements ProxiedPlayer {
 
     @Override
     public Locale getLocale() {
-        return (locale == null && settings != null) ? locale = Locale.forLanguageTag(settings.getLocale().replace('_', '-')) : locale;
+        return (locale == null && settings != null)
+                ? locale = Locale.forLanguageTag(settings.getLocale().replace('_', '-'))
+                : locale;
     }
 
     @Override
@@ -588,12 +607,14 @@ public final class UserConnection implements ProxiedPlayer {
 
     @Override
     public SkinConfiguration getSkinParts() {
-        return (settings != null) ? new PlayerSkinConfiguration(settings.getSkinParts()) : PlayerSkinConfiguration.SKIN_SHOW_ALL;
+        return (settings != null) ? new PlayerSkinConfiguration(settings.getSkinParts())
+                : PlayerSkinConfiguration.SKIN_SHOW_ALL;
     }
 
     @Override
     public ProxiedPlayer.MainHand getMainHand() {
-        return (settings == null || settings.getMainHand() == 1) ? ProxiedPlayer.MainHand.RIGHT : ProxiedPlayer.MainHand.LEFT;
+        return (settings == null || settings.getMainHand() == 1) ? ProxiedPlayer.MainHand.RIGHT
+                : ProxiedPlayer.MainHand.LEFT;
     }
 
     @Override
@@ -619,8 +640,7 @@ public final class UserConnection implements ProxiedPlayer {
 
         sendPacketQueued(new PlayerListHeaderFooter(
                 header,
-                footer
-        ));
+                footer));
     }
 
     @Override
@@ -630,7 +650,8 @@ public final class UserConnection implements ProxiedPlayer {
 
     @Override
     public void resetTabHeader() {
-        // Mojang did not add a way to remove the header / footer completely, we can only set it to empty
+        // Mojang did not add a way to remove the header / footer completely, we can
+        // only set it to empty
         setTabHeader((BaseComponent) null, null);
     }
 
@@ -643,8 +664,7 @@ public final class UserConnection implements ProxiedPlayer {
         return this.getPendingConnection().getExtraDataInHandshake();
     }
 
-    public String getClientBrand()
-    {
+    public String getClientBrand() {
         return getPendingConnection().getClientBrand();
     }
 
@@ -673,14 +693,16 @@ public final class UserConnection implements ProxiedPlayer {
 
     @Override
     public void storeCookie(String cookie, byte[] data) {
-        Preconditions.checkState(getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_5, "Cookies are only supported in 1.20.5 and above");
+        Preconditions.checkState(getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_5,
+                "Cookies are only supported in 1.20.5 and above");
 
         unsafe().sendPacket(new StoreCookie(cookie, data));
     }
 
     @Override
     public void transfer(String host, int port) {
-        Preconditions.checkState(getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_5, "Transfers are only supported in 1.20.5 and above");
+        Preconditions.checkState(getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_5,
+                "Transfers are only supported in 1.20.5 and above");
 
         unsafe().sendPacket(new Transfer(host, port));
     }
@@ -688,33 +710,74 @@ public final class UserConnection implements ProxiedPlayer {
     // Waterfall end
 
     @Override
-    public void clearDialog()
-    {
-        Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_21_6, "Dialogs are only supported in 1.21.6 and above" );
+    public void clearDialog() {
+        Preconditions.checkState(getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_21_6,
+                "Dialogs are only supported in 1.21.6 and above");
 
-        unsafe().sendPacket( new ClearDialog() );
+        unsafe().sendPacket(new ClearDialog());
     }
 
     @Override
-    public void showDialog(Dialog dialog)
-    {
-        Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_21_6, "Dialogs are only supported in 1.21.6 and above" );
+    public void showDialog(Dialog dialog) {
+        Preconditions.checkState(getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_21_6,
+                "Dialogs are only supported in 1.21.6 and above");
 
-        if ( ch.getEncodeProtocol() == Protocol.CONFIGURATION )
-        {
-            unsafe.sendPacket( new ShowDialogDirect( dialog ) );
+        if (ch.getEncodeProtocol() == Protocol.CONFIGURATION) {
+            unsafe.sendPacket(new ShowDialogDirect(dialog));
             return;
         }
 
-        unsafe.sendPacket( new ShowDialog( Either.right( dialog ) ) );
+        unsafe.sendPacket(new ShowDialog(Either.right(dialog)));
     }
-    @Override
-    public void sendServerLinks(List<ServerLink> serverLinks)
-    {
-        Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_21, "Server links are only supported in 1.21 and above" );
 
-        unsafe.sendPacket( new ServerLinks( serverLinks.stream()
-                .map( link -> new ServerLinks.Link( link.getType() != null ? Either.left( link.getType().ordinal() ) : Either.right( link.getLabel() ), link.getUrl() ) )
-                .toArray( ServerLinks.Link[]::new ) ) );
+    @Override
+    public void sendServerLinks(List<ServerLink> serverLinks) {
+        Preconditions.checkState(getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_21,
+                "Server links are only supported in 1.21 and above");
+
+        unsafe.sendPacket(new ServerLinks(serverLinks.stream()
+                .map(link -> new ServerLinks.Link(
+                        link.getType() != null ? Either.left(link.getType().ordinal()) : Either.right(link.getLabel()),
+                        link.getUrl()))
+                .toArray(ServerLinks.Link[]::new)));
+    }
+
+    @Override
+    public void sendResourcePack(ResourcePackInfo resourcePack) {
+        Preconditions.checkNotNull(resourcePack, "resourcePack");
+        Preconditions.checkNotNull(resourcePack.getUrl(), "resourcePack.url");
+        ResourcePackSendEvent event = new ResourcePackSendEvent(this, resourcePack);
+        if (!bungee.getPluginManager().callEvent(event).isCancelled() && event.getResourcePack() != null) {
+            ResourcePackInfo pack = event.getResourcePack();
+
+            ResourcePackSend packet = new ResourcePackSend();
+            packet.setUrl(pack.getUrl());
+            packet.setHash(pack.getHash() != null ? pack.getHash() : "");
+            packet.setRequired(pack.isRequired());
+            packet.setPrompt(pack.getPrompt());
+            packet.setId(pack.getId() != null ? pack.getId() : UUID.randomUUID());
+            unsafe().sendPacket(packet);
+        }
+    }
+
+    @Override
+    public void removeResourcePack(UUID packId) {
+        Preconditions.checkNotNull(packId, "packId");
+        if (getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_20_5) {
+            return;
+        }
+
+        ResourcePackRemove packet = new ResourcePackRemove(packId);
+        unsafe().sendPacket(packet);
+    }
+
+    @Override
+    public void clearResourcePacks() {
+        if (getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_20_5) {
+            return;
+        }
+
+        ResourcePackRemove packet = new ResourcePackRemove(null);
+        unsafe().sendPacket(packet);
     }
 }

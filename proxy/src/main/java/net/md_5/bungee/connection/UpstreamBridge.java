@@ -138,19 +138,19 @@ public class UpstreamBridge extends PacketHandler {
     {
         AtomicBoolean empty = new AtomicBoolean(true);
         String msg = message;
-            for (int index = 0, length = msg.length(); index < length; index++) {
-                char c = msg.charAt(index);
-                if (!AllowedCharacters.isChatAllowedCharacter(c)) {
-                    con.disconnect(bungee.getTranslation("illegal_chat_characters", Util.unicode(c)));
-                    throw CancelSendSignal.INSTANCE;
-                } else if (empty.get() && !Character.isWhitespace(c)) {
-                    empty.set(false);
-                }
-            }
-            if (empty.get()) {
-                con.disconnect("Chat message is empty");
+        for (int index = 0, length = msg.length(); index < length; index++) {
+            char c = msg.charAt(index);
+            if (!AllowedCharacters.isChatAllowedCharacter(c)) {
+                con.disconnect(bungee.getTranslation("illegal_chat_characters", Util.unicode(c)));
                 throw CancelSendSignal.INSTANCE;
+            } else if (empty.get() && !Character.isWhitespace(c)) {
+                empty.set(false);
             }
+        }
+        if (empty.get()) {
+            con.disconnect("Chat message is empty");
+            throw CancelSendSignal.INSTANCE;
+        }
 
         ChatEvent chatEvent = new ChatEvent(con, con.getServer(), message);
         if (!bungee.getPluginManager().callEvent(chatEvent).isCancelled()) {
@@ -320,6 +320,13 @@ public class UpstreamBridge extends PacketHandler {
         if (bungee.getPluginManager().callEvent(event).isCancelled()) {
             throw CancelSendSignal.INSTANCE;
         }
+    }
+
+    @Override
+    public void handle(ResourcePackResponse packet) throws Exception {
+        PlayerResourcePackStatusEvent event = new PlayerResourcePackStatusEvent(
+                con, packet.getId(), packet.getHash(), packet.getResult());
+        bungee.getPluginManager().callEvent(event);
     }
 
     @Override

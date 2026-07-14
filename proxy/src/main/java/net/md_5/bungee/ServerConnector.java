@@ -144,6 +144,9 @@ public class ServerConnector extends PacketHandler {
 
             user.setDimension(login.getDimension());
         } else {
+            if (user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_5) {
+                user.clearResourcePacks();
+            }
             user.getServer().setObsolete(true);
             user.getTabListHandler().onServerChange();
 

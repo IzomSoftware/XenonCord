@@ -24,6 +24,7 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.ResourcePackInfo;
 import net.md_5.bungee.api.ServerConnectRequest;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -267,7 +268,7 @@ public class DownstreamBridge extends PacketHandler {
             if (team.getCollisionRule() != null)
                 t.setCollisionRule(team.getCollisionRule().isLeft() ? team.getCollisionRule().getLeft()
                         : team.getCollisionRule().getRight().getKey());
-            t.setColor(team.getColor().orElse( 0 ));
+            t.setColor(team.getColor().orElse(0));
         }
 
         if (team.getPlayers() != null) {
@@ -677,7 +678,6 @@ public class DownstreamBridge extends PacketHandler {
         }
     }
 
-
     private int rewriteEntityId(int entityId) {
         if (entityId == con.getServerEntityId()) {
             return con.getClientEntityId();
@@ -778,6 +778,38 @@ public class DownstreamBridge extends PacketHandler {
     @Override
     public void handle(BundleDelimiter bundleDelimiter) throws Exception {
         con.toggleBundling();
+    }
+
+    @Override
+    public void handle(ResourcePackSend packet) throws Exception {
+        ResourcePackInfo pack = new ResourcePackInfo(
+                packet.getUrl(),
+                packet.getHash() != null ? packet.getHash() : "",
+                packet.isRequired(),
+                packet.getPrompt(),
+                packet.getId(),
+                ResourcePackInfo.PackSource.DOWNSTREAM_SERVER);
+
+        ResourcePackSendEvent event = new ResourcePackSendEvent(con, pack);
+        if (bungee.getPluginManager().callEvent(event).isCancelled() || event.getResourcePack() == null) {
+            throw CancelSendSignal.INSTANCE;
+        }
+
+        ResourcePackInfo rewritten = event.getResourcePack();
+        if (rewritten != pack) {
+            packet.setUrl(rewritten.getUrl());
+            packet.setHash(rewritten.getHash() != null ? rewritten.getHash() : "");
+            packet.setRequired(rewritten.isRequired());
+            packet.setPrompt(rewritten.getPrompt());
+            packet.setId(rewritten.getId() != null ? rewritten.getId() : packet.getId());
+        }
+    }
+
+    @Override
+    public void handle(ResourcePackRemove packet) throws Exception {
+        if (con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_20_5) {
+            throw CancelSendSignal.INSTANCE;
+        }
     }
 
     @Override
