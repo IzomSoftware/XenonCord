@@ -144,9 +144,6 @@ public class ServerConnector extends PacketHandler {
 
             user.setDimension(login.getDimension());
         } else {
-            if (user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_5) {
-                user.clearResourcePacks();
-            }
             user.getServer().setObsolete(true);
             user.getTabListHandler().onServerChange();
 
@@ -373,6 +370,7 @@ public class ServerConnector extends PacketHandler {
 
         if (user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2) {
             if (user.getServer() != null) {
+                user.clearResourcePacks();
                 // Begin config mode
                 if (user.getCh().getEncodeProtocol() != Protocol.CONFIGURATION) {
                     if (user.isBundling()) {

@@ -876,7 +876,11 @@ public enum Protocol {
                                         ShowDialogDirect::new,
                                         RegisterType.ENCODE,
                                         map(ProtocolConstants.MINECRAFT_1_21_6, 0x12));
-
+                        TO_CLIENT.registerPacket(
+                                        ResourcePackRemove.class,
+                                        ResourcePackRemove::new,
+                                        RegisterType.ENCODE,
+                                        map(ProtocolConstants.MINECRAFT_1_20_5, 0x08));
                         TO_SERVER.registerPacket(
                                         ClientSettings.class,
                                         ClientSettings::new,
