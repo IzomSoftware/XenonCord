@@ -55,7 +55,6 @@ public class AntiProxyModule extends ModuleBase {
                         "http://ip-api.com/json/%s?fields=status,message,country,countryCode,isp,org,mobile,proxy,hosting,query",
                         ip))).get()
                         .forEach(sb::append);
-                    System.out.println(sb.toString());
                 final JsonObject object = JsonParser.parseString(sb.toString()).getAsJsonObject();
                 
                 String msg;
