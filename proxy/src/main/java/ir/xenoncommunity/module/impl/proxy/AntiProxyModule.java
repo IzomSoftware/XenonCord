@@ -65,9 +65,8 @@ public class AntiProxyModule extends ModuleBase {
 
                 if (object.get("hosting").getAsBoolean() || object.get("proxy").getAsBoolean()) {
                     proxyList.add(ip);
+                    XenonCore.instance.getConfiguration().addIpToProxyList(ip);
                 }
-
-                XenonCore.instance.getConfiguration().addIpToProxyList(ip);
             } catch (Exception e) {
                 e.printStackTrace();
             }
