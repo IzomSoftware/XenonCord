@@ -58,7 +58,7 @@ public class AntiProxyModule extends ModuleBase {
                 final JsonObject object = JsonParser.parseString(sb.toString()).getAsJsonObject();
                 
                 String msg;
-                if ((msg = object.get("message").getAsString()) != null) {
+                if (object.get("message") != null && (msg = object.get("message").getAsString()) != null) {
                     getLogger().info(String.format("Caught an error while contacting ip-api: %s", msg));
                     return;
                 }
