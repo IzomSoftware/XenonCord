@@ -128,8 +128,8 @@ public class Configuration {
         try {
             @Cleanup
             BufferedWriter writer = new BufferedWriter(new FileWriter(proxyListFile));
-            writer.write(ip);
-            writer.newLine();
+            writer.append(ip);
+            writer.append(System.lineSeparator());
         } catch (Exception e) {
             e.printStackTrace();
         }
