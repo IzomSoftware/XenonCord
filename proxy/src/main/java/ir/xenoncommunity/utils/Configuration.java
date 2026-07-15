@@ -127,9 +127,9 @@ public class Configuration {
     public void addIpToProxyList(String ip) {
         try {
             @Cleanup
-            BufferedWriter writer = new BufferedWriter(new FileWriter(proxyListFile));
-            writer.append(ip);
-            writer.append(System.lineSeparator());
+            BufferedWriter writer = new BufferedWriter(new FileWriter(proxyListFile, true));
+            writer.write(ip);
+            writer.newLine();
         } catch (Exception e) {
             e.printStackTrace();
         }
