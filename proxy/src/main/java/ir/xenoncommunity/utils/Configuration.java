@@ -7,26 +7,40 @@ import lombok.Setter;
 import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.net.URL;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Getter
 public class Configuration {
     private final File configFile;
     private final File bstatsFile;
+    private final File proxyListFile;
+    private final Pattern ipPattern = Pattern.compile("\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b");
     private final Logger logger;
 
     public Configuration() {
         this.bstatsFile = new File("XenonCord/bstats", "bstats.txt");
         this.configFile = new File("XenonCord", "XenonCord.yml");
+        this.proxyListFile = new File("XenonCord", "proxylist.txt");
         this.logger = XenonCore.instance.getLogger();
     }
 
     private void copyConfig() {
         try {
-            Files.copy(Objects.requireNonNull(XenonCore.class.getResourceAsStream("/XenonCord.yml")), configFile.toPath());
+            Files.copy(Objects.requireNonNull(XenonCore.class.getResourceAsStream("/XenonCord.yml")),
+                    configFile.toPath());
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
@@ -38,20 +52,26 @@ public class Configuration {
             if (!configFile.getParentFile().exists()) {
                 configFile.getParentFile().mkdirs();
             }
-            if (!configFile.exists()) copyConfig();
+            if (!configFile.exists())
+                copyConfig();
 
             Thread.currentThread().setContextClassLoader(ConfigData.class.getClassLoader());
 
-            @Cleanup final FileInputStream is = new FileInputStream(configFile);
+            @Cleanup
+            final FileInputStream is = new FileInputStream(configFile);
             final ConfigData configData = new Yaml().loadAs(is, ConfigData.class);
 
             // Translate colors
 
-            configData.getMessages().setCannot_execute_as_console(Message.translateColor(configData.getMessages().getCannot_execute_as_console()));
-            configData.getMessages().setUnknown_option(Message.translateColor(configData.getMessages().getUnknown_option()));
-            configData.getMessages().setReload_start(Message.translateColor(configData.getMessages().getReload_start()));
-            configData.getMessages().setReload_complete(Message.translateColor(configData.getMessages().getReload_complete()));
-            
+            configData.getMessages().setCannot_execute_as_console(
+                    Message.translateColor(configData.getMessages().getCannot_execute_as_console()));
+            configData.getMessages()
+                    .setUnknown_option(Message.translateColor(configData.getMessages().getUnknown_option()));
+            configData.getMessages()
+                    .setReload_start(Message.translateColor(configData.getMessages().getReload_start()));
+            configData.getMessages()
+                    .setReload_complete(Message.translateColor(configData.getMessages().getReload_complete()));
+
             Captcha captcha = configData.getModules().getCaptcha_module();
 
             captcha.getMessages().setPre_verify(Message.translateColor(captcha.getMessages().getPre_verify()));
@@ -59,10 +79,11 @@ public class Configuration {
             captcha.getMessages().setInstructions(Message.translateColor(captcha.getMessages().getInstructions()));
             captcha.getMessages().setSuccess(Message.translateColor(captcha.getMessages().getSuccess()));
             captcha.getMessages().setInvalid_code(Message.translateColor(captcha.getMessages().getInvalid_code()));
-            captcha.getMessages().setToo_many_attempts(Message.translateColor(captcha.getMessages().getToo_many_attempts()));
+            captcha.getMessages()
+                    .setToo_many_attempts(Message.translateColor(captcha.getMessages().getToo_many_attempts()));
 
             captcha.setBlacklist_message(Message.translateColor(captcha.getBlacklist_message()));
-            
+
             logger.info("Successfully Initialized!");
 
             return configData;
@@ -71,6 +92,63 @@ public class Configuration {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void downloadProxyLists() {
+        if (!proxyListFile.exists()) {
+            try {
+                @Cleanup
+                BufferedWriter writer = new BufferedWriter(new FileWriter(proxyListFile));
+                for (String s : XenonCore.instance.getConfigData().getModules().getAnti_proxy_module().getLinks()) {
+                    final ArrayList<String> fetchList = HttpClient.get(new URL(s)).get();
+                    for (String line : fetchList) {
+                        final Matcher matcher = ipPattern.matcher(line);
+                        while (matcher.find()) {
+                            writer.write(matcher.group());
+                            writer.newLine();
+                        }
+                    }
+                    getLogger()
+                            .info(Colorize
+                                    .console(String.format("&6Fetched &c%s &aTotal: &4%d", s, fetchList.size())));
+
+                }
+            } catch (Exception e) {
+                if (e.getCause() instanceof RuntimeException) {
+                    getLogger().info(
+                            "Error while fetching proxy URLS. make sure URLs are pointing to correct repos/lists.");
+                } else {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void addIpToProxyList(String ip) {
+        try {
+            @Cleanup
+            BufferedWriter writer = new BufferedWriter(new FileWriter(proxyListFile));
+            writer.write(ip);
+            writer.newLine();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Queue<String> getProxyList() {
+        final ConcurrentLinkedQueue<String> temp = new ConcurrentLinkedQueue<>();
+        try {
+            @Cleanup
+            BufferedReader reader = new BufferedReader(new FileReader(proxyListFile));
+            String buffer;
+            while ((buffer = reader.readLine()) != null) {
+                temp.add(buffer);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return temp;
     }
 
     @Getter
@@ -85,18 +163,36 @@ public class Configuration {
             return general != null && general.isDebug();
         }
 
-        public String getXenoncord_permission() { return permissions.getXenoncord(); }
-        public String getReload_permission() { return permissions.getReload(); }
-        public String getReload_message() { return messages.getReload_start(); }
-        public String getReload_complete_message() { return messages.getReload_complete(); }
-        public String getUnknown_option_message() { return messages.getUnknown_option(); }
-        public String getGui_permission() { return permissions.getGui(); }
+        public String getXenoncord_permission() {
+            return permissions.getXenoncord();
+        }
+
+        public String getReload_permission() {
+            return permissions.getReload();
+        }
+
+        public String getReload_message() {
+            return messages.getReload_start();
+        }
+
+        public String getReload_complete_message() {
+            return messages.getReload_complete();
+        }
+
+        public String getUnknown_option_message() {
+            return messages.getUnknown_option();
+        }
+
+        public String getGui_permission() {
+            return permissions.getGui();
+        }
     }
 
     @Getter
     @Setter
     public static class General {
         private boolean debug;
+        private boolean bother_suspicious_connections;
         private Whitelist whitelist;
     }
 
@@ -106,7 +202,7 @@ public class Configuration {
         private String[] ips;
         private String[] users;
     }
-    
+
     @Getter
     @Setter
     public static class Messages {
@@ -135,7 +231,7 @@ public class Configuration {
         private AntiProxyModule anti_proxy_module;
         private AccountLimit account_limit_module;
         private Captcha captcha_module;
-        
+
     }
 
     @Getter
@@ -149,7 +245,6 @@ public class Configuration {
     @Setter
     public static class AntiProxyModule {
         private boolean enabled;
-        private int update_interval;
         private String[] links;
     }
 

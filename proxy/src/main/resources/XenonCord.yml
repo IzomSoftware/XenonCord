@@ -5,11 +5,16 @@
 # General Proxy Settings
 general:
   debug: true
+  # This option may be a little weird to you, but it's basically something to bother scanners/bots.
+  # This options setIgnore suspicious connections instead of just setCancelling them.
+  # Which makes a scanner believe that the server is either offline, or either
+  # There's no Minecraft server running here.
+  # combined with ip/domain whitelist module, and a good firewall configuration, it would piss off scanners badly.
+  bother_suspicious_connections: true
   whitelist:
     ips:
       - "127.0.0.1"
-    users:
-      - "BuffOvrFlw"
+    users: []
   
 # Command and System Messages
 messages:
@@ -51,7 +56,6 @@ modules:
   # Prevents connections from known proxy/VPN services
   anti_proxy_module:
     enabled: true
-    update_interval: 3600 # In seconds
     links:
       - "https://raw.githubusercontent.com/proxifly/free-proxy-list/refs/heads/main/proxies/protocols/socks4/data.txt"
       - "https://raw.githubusercontent.com/proxifly/free-proxy-list/refs/heads/main/proxies/protocols/socks5/data.txt"

@@ -1,72 +1,89 @@
 package ir.xenoncommunity.module.impl.proxy;
 
+import ir.xenoncommunity.XenonCore;
 import ir.xenoncommunity.annotations.ModuleInfo;
 import ir.xenoncommunity.module.ModuleBase;
 import ir.xenoncommunity.utils.Colorize;
 import ir.xenoncommunity.utils.HttpClient;
 import ir.xenoncommunity.utils.WhitelistUtils;
 import lombok.Getter;
+import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.event.EventHandler;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 @ModuleInfo(name = "AntiProxy", version = 1.0, description = "Restricts connections from known proxies")
 public class AntiProxyModule extends ModuleBase {
 
-    private final Pattern ipPattern = Pattern.compile("\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b");
-
     @Getter
-    private final ConcurrentLinkedQueue<String> proxyList = new ConcurrentLinkedQueue<>();
+    private ConcurrentLinkedQueue<String> proxyList;
 
     @Override
     public void onInit() {
         if (!getConfig().getModules().getAnti_proxy_module().isEnabled())
             return;
         getServer().getPluginManager().registerListener(null, this);
-        getTaskManager().repeatingTask(this::fetchProxies, 0,
-                getConfig().getModules().getAnti_proxy_module().getUpdate_interval(), TimeUnit.SECONDS);
+        getTaskManager().async(() -> {
+            getLogger().info(Colorize.console("&bFetching proxies from config links...."));
 
+            XenonCore.instance.getConfiguration().downloadProxyLists();
+            proxyList = new ConcurrentLinkedQueue<>(XenonCore.instance.getConfiguration().getProxyList());
+
+            getLogger()
+                    .info(Colorize
+                            .console(String.format("&bFetching DONE! total cached proxies: %d", proxyList.size())));
+        });
     }
 
-    public void fetchProxies() {
-        getLogger().info(Colorize.console("&bFetching proxies from config links...."));
-        proxyList.clear();
-        for (String s : getConfig().getModules().getAnti_proxy_module().getLinks()) {
+    private boolean checkSuspicious(PendingConnection connection) {
+        final String ip = connection.getAddress().getAddress().getHostAddress();
+
+        if (WhitelistUtils.isWhitelisted(ip, null))
+            return false;
+
+        if (proxyList.contains(ip))
+            return true;
+
+        getTaskManager().add(() -> {
             try {
-                final ArrayList<String> fetchList = HttpClient.get(new URL(s)).get();
-                for (String line : fetchList) {
-                    final Matcher matcher = ipPattern.matcher(line);
-                    while (matcher.find()) {
-                        proxyList.add(matcher.group());
-                    }
+                final StringBuilder sb = new StringBuilder();
+                HttpClient.get(new URL(String.format(
+                        "http://ip-api.com/json/%s?fields=status,message,country,countryCode,isp,org,mobile,proxy,hosting,query",
+                        ip))).get()
+                        .forEach(sb::append);
+                    System.out.println(sb.toString());
+                final JsonObject object = JsonParser.parseString(sb.toString()).getAsJsonObject();
+                
+                String msg;
+                if ((msg = object.get("message").getAsString()) != null) {
+                    getLogger().info(String.format("Caught an error while contacting ip-api: %s", msg));
+                    return;
                 }
-                getLogger().info(Colorize.console(String.format("&6Fetched &c%s &aTotal: &4%d", s, fetchList.size())));
+
+                if (object.get("hosting").getAsBoolean() || object.get("proxy").getAsBoolean()) {
+                    proxyList.add(ip);
+                }
+
+                XenonCore.instance.getConfiguration().addIpToProxyList(ip);
             } catch (Exception e) {
-                if (e.getCause() instanceof RuntimeException) {
-                    getLogger().info("Error while fetching proxy URLS. make sure URLs are pointing to correct repos/lists.");
-                } else {
-                    e.printStackTrace();
-                }
+                e.printStackTrace();
             }
-        }
-        getLogger()
-                .info(Colorize.console(String.format("&bFetching DONE! total cached proxies: %d", proxyList.size())));
+        });
+
+        return false;
     }
 
     @EventHandler
     public void onHandshake(PlayerHandshakeEvent event) {
-        if (WhitelistUtils.isWhitelisted(event.getConnection().getAddress().getAddress().getHostAddress(), null))
-            return;
-
-        if (proxyList.contains(event.getConnection().getAddress().getAddress().getHostAddress()))
-            event.setCancelled(true);
+        boolean block = checkSuspicious(event.getConnection());
+        if (getConfig().getGeneral().isBother_suspicious_connections()) {
+            event.setIgnored(block);
+        } else {
+            event.setCancelled(block);
+        }
     }
 }

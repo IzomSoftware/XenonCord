@@ -163,6 +163,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
     public void handle(StatusRequest statusRequest) throws Exception {
         Preconditions.checkState(thisState == State.STATUS, "Not expecting STATUS");
 
+        final CancellableProxyPingEvent event = new CancellableProxyPingEvent(InitialHandler.this);
+        bungee.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            return;
+        }
+
         thisState = null; // don't accept multiple status requests and set state to ping in async event callback
 
         ServerInfo forced = AbstractReconnectHandler.getForcedHost(this);
@@ -237,7 +243,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
             if (!(host != null && host.length() <= 255 && host.matches("[a-zA-Z0-9.-]+")))
                 event.setCancelled(true);
         } catch (Exception var3) {
-            XenonCore.instance.logdebugerror("Error while handling pre-login");
+            XenonCore.instance.logdebugerror("Error while handling handshake");
             event.setCancelled(true);
         }
 

@@ -7,7 +7,6 @@ package net.md_5.bungee.api;
  * @param <V> the type of result
  */
 public interface Callback<V> {
-
     /**
      * Called when the result is done.
      *

@@ -3,6 +3,7 @@ package ir.xenoncommunity.module.impl.ipwhitelist;
 import ir.xenoncommunity.XenonCore;
 import ir.xenoncommunity.annotations.ModuleInfo;
 import ir.xenoncommunity.module.ModuleBase;
+import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.PlayerHandshakeEvent;
 import net.md_5.bungee.event.EventHandler;
 
@@ -29,6 +30,27 @@ public class IPWhitelistModule extends ModuleBase {
 
     private final boolean isDomainMode = XenonCore.instance.getConfigData().getModules().getIp_whitelist_module().getMode().equals("DOMAIN");
 
+    private boolean checkSuspicious(PendingConnection connection) {
+        // Determine the address based on the whitelist mode (IP or domain)
+        final String address = isDomainMode
+                ? Optional.ofNullable(connection.getVirtualHost())
+                        .map(InetSocketAddress::getHostString)
+                        .map(String::trim)
+                        .map(String::toLowerCase)
+                        .orElse("")
+                : connection.getAddress().getAddress().getHostAddress();
+
+        // Check if the address is in the whitelist
+        final boolean isWhitelisted = Arrays.stream(XenonCore.instance.getConfigData()
+                .getModules().getIp_whitelist_module().getList())
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .anyMatch(address::equals);
+
+        // If the address is not whitelisted, mark the event to be ignored/cancelled
+
+        return !isWhitelisted;
+    }
     /**
      * Handles the PlayerHandshakeEvent to enforce IP or domain whitelist rules.
      *
@@ -36,25 +58,12 @@ public class IPWhitelistModule extends ModuleBase {
      */
     @EventHandler
     public void onHandshake(PlayerHandshakeEvent event) {
-        // Determine the address based on the whitelist mode (IP or domain)
-        final String address = isDomainMode
-                ? Optional.ofNullable(event.getConnection().getVirtualHost())
-                .map(InetSocketAddress::getHostString)
-                .map(String::trim)
-                .map(String::toLowerCase)
-                .orElse("")
-                : event.getConnection().getAddress().getAddress().getHostAddress();
+        boolean block = checkSuspicious(event.getConnection());
 
-        // Check if the address is in the whitelist
-        final boolean isWhitelisted = Arrays.stream(XenonCore.instance.getConfigData()
-                        .getModules().getIp_whitelist_module().getList())
-                .map(String::trim)
-                .map(String::toLowerCase)
-                .anyMatch(address::equals);
-
-        // If the address is not whitelisted, mark the event to be ignored
-        if (!isWhitelisted) {
-            event.setIgnored(true);
+        if (getConfig().getGeneral().isBother_suspicious_connections()) {
+            event.setIgnored(block);
+        } else {
+            event.setCancelled(block);
         }
     }
 }
