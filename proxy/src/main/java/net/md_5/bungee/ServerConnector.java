@@ -113,7 +113,7 @@ public class ServerConnector extends PacketHandler {
                             login.getViewDistance(), login.getSimulationDistance(), login.isReducedDebugInfo(),
                             login.isNormalRespawn(), login.isLimitedCrafting(), login.isDebug(), login.isFlat(),
                             login.getDeathLocation(),
-                            login.getPortalCooldown(), login.getSeaLevel(), login.isSecureProfile()));
+                            login.getPortalCooldown(), login.getSeaLevel(), user.getPendingConnection().isOnlineMode(), login.isSecureProfile()));
 
             if (user.getDimension() != null) {
                 user.getTabListHandler().onServerChange();
@@ -190,7 +190,7 @@ public class ServerConnector extends PacketHandler {
                             login.getViewDistance(), login.getSimulationDistance(), login.isReducedDebugInfo(),
                             login.isNormalRespawn(), login.isLimitedCrafting(), login.isDebug(), login.isFlat(),
                             login.getDeathLocation(),
-                            login.getPortalCooldown(), login.getSeaLevel(), login.isSecureProfile()));
+                            login.getPortalCooldown(), login.getSeaLevel(), user.getPendingConnection().isOnlineMode(), login.isSecureProfile()));
             // Only send if we're in the same dimension
             if (login.getDimension() == user.getDimension()) // Waterfall - defer
             {
@@ -433,7 +433,7 @@ public class ServerConnector extends PacketHandler {
             Callback<ServerConnectRequest.Result> callback = (result, error) -> {
                 if (result != ServerConnectRequest.Result.SUCCESS) {
                     user.disconnect(message);
-                }
+                }                
             };
             user.connect(ServerConnectRequest.builder().target(event.getCancelServer()).callback(callback).retry(false)
                     .reason(ServerConnectEvent.Reason.KICK_REDIRECT).build());
