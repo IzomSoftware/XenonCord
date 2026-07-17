@@ -82,6 +82,11 @@ Need help or want to contribute? **Join our community on Discord!**
 
 [![Discord](https://img.shields.io/discord/1189580010957324298?color=5865F2&logo=discord&logoColor=white&style=for-the-badge)](https://discord.gg/vTF2W5UKxr)  
 
+---
+## License
+Our project is licensed under https://github.com/IzomSoftware/IzomDotnetNonPermissiveDualLicense
+We allow you to modify, study, use, commit, distribute open source projects derived from this project, however, commercial use requires credits. See LICENSE.md for details.
+
 --- 
 
 ## 📊 Live Statistics  
