@@ -46,28 +46,24 @@ We only implement features into mainstream which **really** require us to do so 
 1. **Download** the latest `.jar` file from [Releases](#).  
 2. **Place** it in your **Minecraft server folder**.  
 3. **Run** it using your server's start script.  
+4. **Read documentationss** that we wrote so you understand how things work around.
 
 ### 💻 As a Development Workspace  
 1. **Clone the repository**:  
    ```bash
-   git clone https://github.com/SyNdicateFoundation/XenonCord/
+   git clone https://github.com/IzomSoftware/XenonCord/
    ```
-2. **Open in IntelliJ IDEA**
+2. **Open in IntelliJ IDEA or your favorite IDE** 
 
 ---
 
 ## 🚧 TODO  
-📌 **Optimizations** – Improve performance & reduce overhead.
-- Optimization plans:
-- Remove entity mapping entirely ✅ (Testing required)
-- Replace thread.sleeps ✅ (Testing required)
-- Replace reflections based stuff ✅ (Testing required)
-- remove r/w lock (replace with ConcurrentHashmap ✅ (Testing required)
-- use libdeflate  ✅
-- remove system.nanotime ✅
-
-📌 **Feature Additions** – Expand functionality with new capabilities.  
-
+📌 **Optimizations**
+- We need to optimize even further and push limits
+📌 **Feature Additions** 
+– Finish the upcoming antibot feature.
+- Implement a firewall bsaed blocker for systems using linux.
+- Optional: Implement a way to instead of sending respawn packet to the client, just reload the chunk and make transfers seamless
 ---
 
 ## 🎖 Credits  
