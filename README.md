@@ -23,6 +23,13 @@ At first, XenonCord's goal was to implement features alongside with optimization
 Our key goal is to keep it simple & modular, we hate bloatware & therefore we'll not contribute to it.
 We only implement features into mainstream which **really** require us to do so (e.g. domain whitelisting).
 
+---
+
+## Waterfall is EOL, what would happen to XenonCord?
+We chose to update Waterfall and merge upstream changes from BungeeCord for protocol changes. this way we can optimize upstream changes if required too.
+
+---
+
 ## ✨ Key Features  
 
 ✅ **Lightweight & Optimized**  
@@ -57,7 +64,9 @@ We only implement features into mainstream which **really** require us to do so 
 
 ---
 
-## 🚧 TODO  
+## 🚧 TODO 
+- Merge waterfall / Bungee / Xenon configurations in a single configuration type
+- Seperate configuration files
 📌 **Optimizations**
 - We need to optimize even further and push limits
 📌 **Feature Additions** 
