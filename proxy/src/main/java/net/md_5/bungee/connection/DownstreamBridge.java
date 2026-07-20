@@ -808,10 +808,10 @@ public class DownstreamBridge extends PacketHandler {
     @Override
     public void handle(ResourcePackRemove packet) throws Exception {
         if (con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_20_5) {
-            final ResourcePackSend packet = new ResourcePackSend();
-            packet.setUrl("");
-            packet.setHash("");
-            con.unsafe().sendPacket(packet);
+            final ResourcePackSend p = new ResourcePackSend();
+            p.setUrl("");
+            p.setHash("");
+            con.unsafe().sendPacket(p);
             throw CancelSendSignal.INSTANCE;
         }
     }
