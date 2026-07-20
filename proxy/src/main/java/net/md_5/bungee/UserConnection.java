@@ -773,14 +773,7 @@ public final class UserConnection implements ProxiedPlayer {
 
     @Override
     public void clearResourcePacks() {
-        if (getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_20_5) {
-            ResourcePackSend packet = new ResourcePackSend();
-            packet.setUrl("");
-            packet.setHash("");
-            unsafe().sendPacket(packet);
-        } else {
-            ResourcePackRemove packet = new ResourcePackRemove(null);
-            unsafe().sendPacket(packet);
-        }
+        ResourcePackRemove packet = new ResourcePackRemove(null);
+        unsafe().sendPacket(packet);
     }
 }

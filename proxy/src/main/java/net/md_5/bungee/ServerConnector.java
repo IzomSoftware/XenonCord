@@ -368,9 +368,12 @@ public class ServerConnector extends PacketHandler {
             return;
         }
 
+        if (user.getServer() != null) {
+                user.clearResourcePacks();
+        }
+
         if (user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2) {
             if (user.getServer() != null) {
-                user.clearResourcePacks();
                 // Begin config mode
                 if (user.getCh().getEncodeProtocol() != Protocol.CONFIGURATION) {
                     if (user.isBundling()) {

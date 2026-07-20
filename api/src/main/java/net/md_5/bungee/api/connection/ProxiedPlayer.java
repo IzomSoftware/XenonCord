@@ -467,7 +467,7 @@ public interface ProxiedPlayer extends Connection, CommandSender {
     void removeResourcePack(UUID packId);
 
     /**
-     * Removes ALL resource packs (1.20.5+)
+     * Removes ALL resource packs
      */
     @ApiStatus.Experimental
     void clearResourcePacks();
