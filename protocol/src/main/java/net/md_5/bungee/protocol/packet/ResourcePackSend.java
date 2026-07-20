@@ -45,7 +45,7 @@ public class ResourcePackSend extends DefinedPacket {
         if (protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5) {
             writeUUID(id != null ? id : new UUID(0L, 0L), buf);
         }
-        writeString(url, buf, 32767);
+        writeString(url != null ? url : "", buf, 32767);
         if (protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5) {
             writeString(hash != null ? hash : "", buf, 32767);
         } else {
