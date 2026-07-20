@@ -23,9 +23,16 @@ public class ResourcePackResponse extends DefinedPacket {
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion) {
         if (protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5) {
-            id = readUUID(buf);
+            if (buf.readableBytes() >= 16) {
+                id = readUUID(buf);
+            }
         } else {
-            hash = readString(buf, 40);
+            buf.markReaderIndex();
+            try {
+                hash = readString(buf, 40);
+            } catch (IndexOutOfBoundsException e) {
+                buf.resetReaderIndex();
+            }
         }
         result = readVarInt(buf);
     }
