@@ -12,16 +12,6 @@ import java.util.UUID;
 @ToString(callSuper = false)
 @EqualsAndHashCode(callSuper = false)
 public class PlayerResourcePackStatusEvent extends Event {
-
-    public static final int SUCCESSFULLY_LOADED = 0;
-    public static final int DECLINED = 1;
-    public static final int FAILED_DOWNLOAD = 2;
-    public static final int ACCEPTED = 3;
-    public static final int DOWNLOADED = 4;
-    public static final int INVALID_URL = 5;
-    public static final int FAILED_RELOAD = 6;
-    public static final int DISCARDED = 7;
-
     private final ProxiedPlayer player;
     private final UUID packId;
     private final String hash;

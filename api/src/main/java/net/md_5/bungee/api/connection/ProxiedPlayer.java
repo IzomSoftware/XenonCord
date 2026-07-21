@@ -462,14 +462,19 @@ public interface ProxiedPlayer extends Connection, CommandSender {
 
     /**
      * Removes a specific resource pack (1.20.5+)
+     * On versions under 1.20.5 this protocol is not mapped
+     * and therefore it's a no-op.
      */
     @ApiStatus.Experimental
     void removeResourcePack(UUID packId);
 
     /**
      * Removes ALL resource packs
+     * This method works reliabliy on 1.20.5+
+     * On versions under 1.20.5 however, it works
+     * Extremely unreliable, it just sends a ResourcePackSend packet
+     * with empty fields, hoping for the trick to work on 1.20.5 < clients.
      */
-    @ApiStatus.Experimental
     void clearResourcePacks();
 
     /**
