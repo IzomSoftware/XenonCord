@@ -347,8 +347,7 @@ public final class UserConnection implements ProxiedPlayer {
             if (!future.isSuccess()) {
                 future.channel().close();
                 pendingConnects.remove(target);
-                
-                System.out.println(future.cause());
+
                 final ServerInfo def = updateAndGetNextServer(target);
                 if (request.isRetry() && def != null && (getServer() == null || !def.equals(getServer().getInfo()))) {
                     connect(def, (result, error) -> {

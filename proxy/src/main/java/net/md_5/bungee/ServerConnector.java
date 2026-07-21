@@ -425,7 +425,7 @@ public class ServerConnector extends PacketHandler {
         final ServerKickEvent event = new ServerKickEvent(user, target, new BaseComponent[] {
                 kick.getMessage()
         }, def, ServerKickEvent.State.CONNECTING, ServerKickEvent.Cause.SERVER); // Waterfall );
-        if (event.getKickReason().toLowerCase(Locale.ROOT).contains("outdated") && def != null) {
+        if (event.getKickReason().toLowerCase(Locale.ROOT).contains("outdated") && def != null && BungeeCord.getInstance().config.getFallback()) {           
             // Pre cancel the event if we are going to try another server
             event.setCancelled(true);
         }
