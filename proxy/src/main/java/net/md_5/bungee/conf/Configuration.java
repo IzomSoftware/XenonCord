@@ -41,6 +41,7 @@ public class Configuration implements ProxyConfig {
     private String uuid = UUID.randomUUID().toString();
     private Collection<ListenerInfo> listeners;
     private Map<String, ServerInfo> servers;
+    private boolean fallback = false;
     private boolean onlineMode = false;
     private boolean enforceSecureProfile;
     private boolean ignoreSecureProfileForOlderVersions;
@@ -113,6 +114,7 @@ public class Configuration implements ProxyConfig {
             pluginChannelLimit = adapter.getInt("registered_plugin_channels_limit", pluginChannelLimit);
             pluginChannelNameLimit = adapter.getInt("plugin_channel_name_limit", pluginChannelNameLimit);
             tcpFastOpen = adapter.getInt("tcpFastOpen", 3);
+            fallback = adapter.getBoolean("fallback", false);
             forwardingMode = ForwardingMode
                     .valueOf(adapter.getString("forwarding_mode", forwardingMode.name()).toUpperCase());
 
@@ -257,6 +259,9 @@ public class Configuration implements ProxyConfig {
 
     public int getTcpFastOpen() {
         return tcpFastOpen;
+    }
+    public boolean getFallback() {
+        return fallback;
     }
     // Waterfall end
 

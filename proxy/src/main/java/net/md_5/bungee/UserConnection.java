@@ -298,7 +298,7 @@ public final class UserConnection implements ProxiedPlayer {
         final Callback<ServerConnectRequest.Result> callback = request.getCallback();
         final ServerConnectEvent event = new ServerConnectEvent(this, request.getTarget(), request.getReason(),
                 request);
- 
+
         if (bungee.getPluginManager().callEvent(event).isCancelled()) {
             if (callback != null)
                 callback.done(ServerConnectRequest.Result.EVENT_CANCEL, null);
@@ -349,14 +349,8 @@ public final class UserConnection implements ProxiedPlayer {
                 pendingConnects.remove(target);
 
                 final ServerInfo def = updateAndGetNextServer(target);
-                if (request.isRetry() && def != null && (getServer() == null || !def.equals(getServer().getInfo()))) {
-                    final ServerInfo source = getServer().getInfo();
+                if (BungeeCord.getInstance().getConfig().getFallback() && request.isRetry() && def != null && (getServer() == null || !def.equals(getServer().getInfo()))) {
                     connect(def, (result, error) -> {
-                        if (result && request.isSendFeedback()) {
-                            sendMessage(bungee.getTranslation("fallback_lobby"));
-                        }
-                    }, true, ServerConnectEvent.Reason.LOBBY_FALLBACK);
-                    connect(source, (result, error) -> {
                         if (result && request.isSendFeedback()) {
                             sendMessage(bungee.getTranslation("fallback_lobby"));
                         }
