@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-
 import java.util.UUID;
 
 @Data
@@ -36,7 +35,7 @@ public class ResourcePackResponse extends DefinedPacket {
             }
             result = readVarInt(buf);
         } catch (Exception e) {
-            result = 3;
+            result = PackResponse.FAILED_DOWNLOAD.getId();
         }
     }
 
@@ -57,6 +56,27 @@ public class ResourcePackResponse extends DefinedPacket {
             handler.handle(this);
         } catch (OutOfMemoryError e) {
             System.gc();
+        }
+    }
+
+    public enum PackResponse {
+        SUCCESSFULLY_LOADED(0),
+        DECLINED(1),
+        FAILED_DOWNLOAD(2),
+        ACCEPTED(3),
+        DOWNLOADED(4),
+        INVALID_URL(5),
+        FAILED_RELOAD(6),
+        DISCARDED(7);
+
+        private final int id;
+
+        PackResponse(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return this.id;
         }
     }
 }

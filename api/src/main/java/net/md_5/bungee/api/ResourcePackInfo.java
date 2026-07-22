@@ -28,22 +28,4 @@ public class ResourcePackInfo {
         DOWNSTREAM_SERVER,
         UNKNOWN
     }
-    public enum PackResponse {
-        SUCCESSFULLY_LOADED(0),
-        DECLINED(1),
-        FAILED_DOWNLOAD(2),
-        ACCEPTED(3),
-        DOWNLOADED(4),
-        INVALID_URL(5),
-        FAILED_RELOAD(6),
-        DISCARDED(7);
-        
-        private final int id;
-        PackResponse(int id) {
-            this.id = id;
-        }
-        public int getId() {
-            return this.id;
-        }
-    } 
 }
