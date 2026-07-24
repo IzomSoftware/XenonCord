@@ -18,6 +18,7 @@ public class ResourcePackResponse extends DefinedPacket {
     private UUID id;
     private String hash;
     private int result;
+    private boolean downloadLive;
 
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion) {
         try {
@@ -34,11 +35,13 @@ public class ResourcePackResponse extends DefinedPacket {
                 }
             }
             result = readVarInt(buf);
+            if (buf.isReadable()) {
+                downloadLive = buf.readBoolean();
+            }
         } catch (Exception e) {
             result = PackResponse.FAILED_DOWNLOAD.getId();
         }
     }
-
 
     @Override
     public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion) {
@@ -48,6 +51,9 @@ public class ResourcePackResponse extends DefinedPacket {
             writeString(hash != null ? hash : "", buf, 40);
         }
         writeVarInt(result, buf);
+        if (protocolVersion >= ProtocolConstants.MINECRAFT_1_21_7) {
+            buf.writeBoolean(downloadLive);
+        }
     }
 
     @Override
