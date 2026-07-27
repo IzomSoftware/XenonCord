@@ -43,10 +43,10 @@ public class EncryptionUtil {
         }
     }
 
-    public static EncryptionRequest encryptRequest() {
+    public static EncryptionRequest encryptRequest(boolean shouldAuthenticate) {
         final byte[] verify = new byte[4];
         random.nextBytes(verify);
-        return new EncryptionRequest(Long.toString(random.nextLong(), 16),  keys.getPublic().getEncoded(), verify, true);
+        return new EncryptionRequest(Long.toString(random.nextLong(), 16),  keys.getPublic().getEncoded(), verify, shouldAuthenticate);
     }
 
     public static boolean check(PlayerPublicKey publicKey, UUID uuid) throws GeneralSecurityException {

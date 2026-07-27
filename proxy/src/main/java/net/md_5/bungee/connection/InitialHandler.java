@@ -90,6 +90,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
     @Getter
     private boolean onlineMode = BungeeCord.getInstance().config.isOnlineMode();
     @Getter
+    private boolean encryptInOfflineMode = BungeeCord.getInstance().config.isEncryptInOfflineMode();
+    @Getter
     private InetSocketAddress virtualHost;
     private String name;
     @Getter
@@ -141,14 +143,14 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
     }
 
     /*@Override
-    public void handle(PluginMessage pluginMessage) throws Exception {
-        // Waterfall start
-        try {
-            this.relayMessage(pluginMessage);
-        } catch (IllegalStateException | IllegalArgumentException ex) {
-            throw new QuietException(ex.getMessage());
-        }
-        // Waterfall end
+      public void handle(PluginMessage pluginMessage) throws Exception {
+    // Waterfall start
+    try {
+    this.relayMessage(pluginMessage);
+    } catch (IllegalStateException | IllegalArgumentException ex) {
+    throw new QuietException(ex.getMessage());
+    }
+    // Waterfall end
     }*/
 
     private ServerPing getPingInfo(String motd, int protocol) {
@@ -156,7 +158,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
                 new ServerPing.Protocol(bungee.getName() + " " + bungee.getGameVersion(), protocol),
                 new ServerPing.Players(listener.getMaxPlayers(), bungee.getOnlineCount(), null),
                 motd, BungeeCord.getInstance().config.getFaviconObject()
-        );
+                );
     }
 
     @Override
@@ -360,7 +362,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
 
                 if (onlineMode) {
                     thisState = State.ENCRYPT;
-                    unsafe().sendPacket(request = EncryptionUtil.encryptRequest());
+                    unsafe().sendPacket(request = EncryptionUtil.encryptRequest(onlineMode));
                 } else {
                     thisState = State.FINISHING;
                     finish();
@@ -372,6 +374,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
         bungee.getPluginManager().callEvent(new PreLoginEvent(InitialHandler.this, eventLoopCallback(callback)));
     }
 
+
+
     @Override
     public void handle(EncryptionResponse encryptResponse) throws Exception {
         Preconditions.checkState(thisState == State.ENCRYPT, "Not expecting ENCRYPT");
@@ -379,7 +383,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
         thisState = State.FINISHING; // Waterfall - move earlier - There is no verification of this later (and this is not API)
 
         SecretKey sharedKey = EncryptionUtil.getSecret(encryptResponse, request);
-        // Waterfall start
+        // Waterfall start - SecretKey length validation
         if (sharedKey instanceof SecretKeySpec) {
             if (sharedKey.getEncoded().length != 16) {
                 this.ch.close();
@@ -387,6 +391,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
             }
         }
         // Waterfall end
+
         BungeeCipher decrypt = EncryptionUtil.getCipher(false, sharedKey);
         ch.addBefore(PipelineUtils.FRAME_DECODER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder(decrypt));
         BungeeCipher encrypt = EncryptionUtil.getCipher(true, sharedKey);
@@ -397,10 +402,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
         String encName = URLEncoder.encode(InitialHandler.this.getName(), "UTF-8");
 
         MessageDigest sha = MessageDigest.getInstance("SHA-1");
-        for (byte[] bit : new byte[][]
-                {
-                        request.getServerId().getBytes("ISO_8859_1"), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
-                }) {
+        for (byte[] bit : new byte[][] {
+            request.getServerId().getBytes("ISO_8859_1"),
+                sharedKey.getEncoded(),
+                EncryptionUtil.keys.getPublic().getEncoded()
+        }) {
             sha.update(bit);
         }
         String encodedHash = URLEncoder.encode(new BigInteger(sha.digest()).toString(16), "UTF-8");
@@ -427,7 +433,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
                 }
             }
         };
-        //thisState = State.FINISHING; // Waterfall - move earlier
+
         HttpClient.get(authURL, ch.getHandle().eventLoop(), handler);
     }
 
@@ -451,11 +457,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
         }
 
         if ((isOnlineMode() && bungee.getPlayer(getName()) != null
-                && bungee.getPlayer(getUniqueId()) != null)
+                    && bungee.getPlayer(getUniqueId()) != null)
                 || bungee.getPlayer(getName()) != null) {
             disconnect(bungee.getTranslation("already_connected_proxy"));
             return;
-        }
+                }
 
         bungee.getPluginManager().callEvent(new LoginEvent(InitialHandler.this, (result, error) -> {
             if (result.isCancelled()) {
@@ -695,11 +701,11 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
                 return;
             }
             eventLoop.execute(() ->
-            {
-                if (!ch.isClosing()) {
-                    callback.done(result, error);
-                }
-            });
+                    {
+                        if (!ch.isClosing()) {
+                            callback.done(result, error);
+                        }
+                    });
         };
     }
 

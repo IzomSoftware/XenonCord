@@ -43,8 +43,8 @@ public class Configuration implements ProxyConfig {
     private Map<String, ServerInfo> servers;
     private boolean fallback = false;
     private boolean onlineMode = false;
+    private boolean encryptInOfflineMode = false;
     private boolean enforceSecureProfile;
-    private boolean ignoreSecureProfileForOlderVersions;
     private int remotePingCache = -1;
     private int playerLimit = -1;
     private int serverConnectTimeout = 5000;
@@ -88,9 +88,8 @@ public class Configuration implements ProxyConfig {
             timeout = adapter.getInt("timeout", timeout);
             uuid = adapter.getString("stats", uuid);
             onlineMode = adapter.getBoolean("online_mode", onlineMode);
+            encryptInOfflineMode = adapter.getBoolean( "encrypt_in_offline_mode", encryptInOfflineMode );
             enforceSecureProfile = adapter.getBoolean("enforce_secure_profile", enforceSecureProfile);
-            ignoreSecureProfileForOlderVersions = adapter.getBoolean("ignore_secure_profile_for_older_versions",
-                    ignoreSecureProfileForOlderVersions);
             remotePingCache = adapter.getInt("remote_ping_cache", remotePingCache);
             playerLimit = adapter.getInt("player_limit", playerLimit);
             serverConnectTimeout = adapter.getInt("server_connect_timeout", serverConnectTimeout);
@@ -116,7 +115,7 @@ public class Configuration implements ProxyConfig {
             tcpFastOpen = adapter.getInt("tcpFastOpen", 3);
             fallback = adapter.getBoolean("fallback", false);
             forwardingMode = ForwardingMode
-                    .valueOf(adapter.getString("forwarding_mode", forwardingMode.name()).toUpperCase());
+                .valueOf(adapter.getString("forwarding_mode", forwardingMode.name()).toUpperCase());
 
             final Logger logger = XenonCore.instance.getLogger();
             switch (forwardingMode) {
@@ -157,20 +156,20 @@ public class Configuration implements ProxyConfig {
                     if ((newServer == null || !oldServer.getAddress().equals(newServer.getAddress()))
                             && !oldServer.getPlayers().isEmpty()) {
                         BungeeCord.getInstance().getLogger()
-                                .info("Moving players off of server: " + oldServer.getName());
+                            .info("Moving players off of server: " + oldServer.getName());
                         for (ProxiedPlayer player : oldServer.getPlayers()) {
                             ListenerInfo listener = player.getPendingConnection().getListener();
                             String destinationName = newServers.get(listener.getDefaultServer()) == null
-                                    ? listener.getDefaultServer()
-                                    : listener.getFallbackServer();
+                                ? listener.getDefaultServer()
+                                : listener.getFallbackServer();
                             ServerInfo destination = newServers.get(destinationName);
                             if (destination == null) {
                                 BungeeCord.getInstance().getLogger()
-                                        .severe("Couldn't find server " + listener.getDefaultServer() + " or "
-                                                + listener.getFallbackServer() + " to put player " + player.getName()
-                                                + " on");
+                                    .severe("Couldn't find server " + listener.getDefaultServer() + " or "
+                                            + listener.getFallbackServer() + " to put player " + player.getName()
+                                            + " on");
                                 player.disconnect(BungeeCord.getInstance().getTranslation("fallback_kick",
-                                        "Not found on reload"));
+                                            "Not found on reload"));
                                 continue;
                             }
                             player.connect(destination, (success, cause) -> {
@@ -179,7 +178,7 @@ public class Configuration implements ProxyConfig {
                                             "Failed to connect " + player.getName() + " to " + destination.getName(),
                                             cause);
                                     player.disconnect(BungeeCord.getInstance().getTranslation("fallback_kick",
-                                            cause.getCause().getClass().getName()));
+                                                cause.getCause().getClass().getName()));
                                 }
                             });
                         }
