@@ -35,9 +35,9 @@ public class Metrics {
                 config.isLogErrorsEnabled(),
                 config.isLogSentDataEnabled(),
                 config.isLogResponseStatusTextEnabled()
-        );
+                );
         metricsBase.addCustomChart(
                 new SingleLineChart("players", () -> XenonCore.instance.getBungeeInstance().getPlayers().size())
-        );
+                );
     }
 }
