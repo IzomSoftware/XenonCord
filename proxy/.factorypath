@@ -19,17 +19,11 @@
     <factorypathentry kind="VARJAR" id="M2_REPO/io/netty/incubator/netty-incubator-transport-native-io_uring/0.0.26.Final/netty-incubator-transport-native-io_uring-0.0.26.Final-linux-x86_64.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/netty/incubator/netty-incubator-transport-classes-io_uring/0.0.26.Final/netty-incubator-transport-classes-io_uring-0.0.26.Final.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/netty/incubator/netty-incubator-transport-native-io_uring/0.0.26.Final/netty-incubator-transport-native-io_uring-0.0.26.Final-linux-aarch_64.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/github/waterfallmc/waterfall-api/26.1-R0.1-SNAPSHOT/waterfall-api-26.1-R0.1-SNAPSHOT.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/github/waterfallmc/waterfall-chat/26.1-R0.1-SNAPSHOT/waterfall-chat-26.1-R0.1-SNAPSHOT.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/google/code/gson/gson/2.12.1/gson-2.12.1.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/github/waterfallmc/waterfall-config/26.1-R0.1-SNAPSHOT/waterfall-config-26.1-R0.1-SNAPSHOT.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/github/waterfallmc/waterfall-event/26.1-R0.1-SNAPSHOT/waterfall-event-26.1-R0.1-SNAPSHOT.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/yaml/snakeyaml/2.4/snakeyaml-2.4.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/github/waterfallmc/waterfall-dialog/26.1-R0.1-SNAPSHOT/waterfall-dialog-26.1-R0.1-SNAPSHOT.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/ow2/asm/asm-commons/9.8/asm-commons-9.8.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/ow2/asm/asm/9.8/asm-9.8.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/ow2/asm/asm-tree/9.8/asm-tree-9.8.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/github/waterfallmc/waterfall-log4j/26.1-R0.1-SNAPSHOT/waterfall-log4j-26.1-R0.1-SNAPSHOT.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/apache/logging/log4j/log4j-core/2.25.3/log4j-core-2.25.3.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/apache/logging/log4j/log4j-api/2.25.3/log4j-api-2.25.3.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/apache/logging/log4j/log4j-iostreams/2.25.3/log4j-iostreams-2.25.3.jar" enabled="true" runInBatchMode="false"/>
@@ -37,16 +31,11 @@
     <factorypathentry kind="VARJAR" id="M2_REPO/org/apache/logging/log4j/log4j-slf4j-impl/2.25.3/log4j-slf4j-impl-2.25.3.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/lmax/disruptor/4.0.0/disruptor-4.0.0.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/github/waterfallmc/waterfall-native/26.1-R0.1-SNAPSHOT/waterfall-native-26.1-R0.1-SNAPSHOT.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/github/waterfallmc/waterfall-protocol/26.1-R0.1-SNAPSHOT/waterfall-protocol-26.1-R0.1-SNAPSHOT.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/mojang/brigadier/1.2.9/brigadier-1.2.9.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/github/waterfallmc/waterfall-serializer/26.1-R0.1-SNAPSHOT/waterfall-serializer-26.1-R0.1-SNAPSHOT.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/netty/netty-codec/4.2.16.Final/netty-codec-4.2.16.Final.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/netty/netty-codec-protobuf/4.2.16.Final/netty-codec-protobuf-4.2.16.Final.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/netty/netty-codec-marshalling/4.2.16.Final/netty-codec-marshalling-4.2.16.Final.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/it/unimi/dsi/fastutil-core/8.5.15/fastutil-core-8.5.15.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/github/waterfallmc/waterfall-nbt/26.1-R0.1-SNAPSHOT/waterfall-nbt-26.1-R0.1-SNAPSHOT.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/github/waterfallmc/waterfall-query/26.1-R0.1-SNAPSHOT/waterfall-query-26.1-R0.1-SNAPSHOT.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/mysql/mysql-connector-j/9.2.0/mysql-connector-j-9.2.0.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/com/google/protobuf/protobuf-java/4.29.0/protobuf-java-4.29.0.jar" enabled="true" runInBatchMode="false"/>
