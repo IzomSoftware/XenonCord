@@ -30,6 +30,11 @@ We chose to update Waterfall and merge upstream changes from BungeeCord for prot
 
 ---
 
+## Why XenonCord is still on java 8?
+We chose to support java 8 until it's end of support (2030).
+
+---
+
 ## ✨ Key Features  
 
 ✅ **Lightweight & Optimized**  
