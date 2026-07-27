@@ -1,207 +1,219 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.github.waterfallmc</groupId>
-    <artifactId>waterfall-parent</artifactId>
-    <version>26.1-R0.1-SNAPSHOT</version>
-    <packaging>pom</packaging>
+<groupId>io.github.waterfallmc</groupId>
+<artifactId>waterfall-parent</artifactId>
+<version>26.1-R0.1-SNAPSHOT</version>
+<packaging>pom</packaging>
 
-    <name>Waterfall-Parent</name>
-    <description>Parent project for all Waterfall modules.</description>
-    <url>https://github.com/WaterfallMC/Waterfall</url>
-    <inceptionYear>2015</inceptionYear>
-    <organization>
-        <name>WaterfallMC</name>
-        <url>https://github.com/WaterfallMC</url>
-    </organization>
-    <licenses>
-        <license>
-            <name>Modified BSD 3-Clause License</name>
-            <url>https://github.com/SpigotMC/BungeeCord/blob/master/LICENSE</url>
-            <distribution>repo</distribution>
-        </license>
-        <license>
-            <name>Apache License Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
-            <comments>Applies only to original versions of files in proxy/src/main/java/net/md_5/bungee/netty/flush/</comments>
-        </license>
-    </licenses>
+<name>Waterfall-Parent</name>
+<description>Parent project for all Waterfall modules.</description>
+<url>https://github.com/WaterfallMC/Waterfall</url>
+<inceptionYear>2015</inceptionYear>
+<organization>
+    <name>WaterfallMC</name>
+    <url>https://github.com/WaterfallMC</url>
+</organization>
+<licenses>
+    <license>
+        <name>Modified BSD 3-Clause License</name>
+        <url>https://github.com/SpigotMC/BungeeCord/blob/master/LICENSE</url>
+        <distribution>repo</distribution>
+    </license>
+    <license>
+        <name>Apache License Version 2.0</name>
+        <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+        <comments>Applies only to original versions of files in proxy/src/main/java/net/md_5/bungee/netty/flush/</comments>
+    </license>
+</licenses>
 
-    <developers>
-        <developer>
-            <id>Tux</id>
-        </developer>
-        <developer>
-            <id>Techcable</id>
-        </developer>
-        <developer>
-            <id>kashike</id>
-        </developer>
-        <developer>
-            <id>jamierocks</id>
-        </developer>
-        <developer>
-            <id>fuzzybot</id>
-        </developer>
-    </developers>
+<developers>
+    <developer>
+        <id>Tux</id>
+    </developer>
+    <developer>
+        <id>Techcable</id>
+    </developer>
+    <developer>
+        <id>kashike</id>
+    </developer>
+    <developer>
+        <id>jamierocks</id>
+    </developer>
+    <developer>
+        <id>fuzzybot</id>
+    </developer>
+</developers>
 
-    <modules>
-        <module>api</module>
-        <module>bootstrap</module>
-        <module>chat</module>
-        <module>config</module>
-        <module>dialog</module>
-        <module>event</module>
-        <module>log4j</module>
-        <module>protocol</module>
-        <module>proxy</module>
-        <module>query</module>
-        <module>native</module>
-        <module>serializer</module>
-        <module>nbt</module>
-    </modules>
+<modules>
+    <module>api</module>
+    <module>bootstrap</module>
+    <module>chat</module>
+    <module>config</module>
+    <module>dialog</module>
+    <module>event</module>
+    <module>log4j</module>
+    <module>protocol</module>
+    <module>proxy</module>
+    <module>query</module>
+    <module>native</module>
+    <module>serializer</module>
+    <module>nbt</module>
+</modules>
 
-    <scm>
-        <connection>scm:git:git@github.com:com:WaterfallMC/Waterfall.git</connection>
-        <developerConnection>scm:git:git@github.com:WaterfallMC/Waterfall.git</developerConnection>
-        <url>git@github.com:WaterfallMC/Waterfall.git</url>
-    </scm>
-    <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/PaperMC/Waterfall/issues</url>
-    </issueManagement>
+<scm>
+    <connection>scm:git:git@github.com:com:WaterfallMC/Waterfall.git</connection>
+    <developerConnection>scm:git:git@github.com:WaterfallMC/Waterfall.git</developerConnection>
+    <url>git@github.com:WaterfallMC/Waterfall.git</url>
+</scm>
+<issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/PaperMC/Waterfall/issues</url>
+</issueManagement>
 
-    <distributionManagement>
-        <repository>
-            <id>papermc-releases</id>
-            <url>https://papermc.io/repo/repository/maven-releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>papermc-snapshots</id>
-            <url>https://papermc.io/repo/repository/maven-snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
+<distributionManagement>
+    <repository>
+        <id>papermc-releases</id>
+        <url>https://papermc.io/repo/repository/maven-releases/</url>
+    </repository>
+    <snapshotRepository>
+        <id>papermc-snapshots</id>
+        <url>https://papermc.io/repo/repository/maven-snapshots/</url>
+    </snapshotRepository>
+</distributionManagement>
 
-    <properties>
-        <build.number>unknown</build.number>
-        <lombok.version>1.18.36</lombok.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+<properties>
+    <build.number>unknown</build.number>
+    <lombok.version>1.18.36</lombok.version>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+</properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-bom</artifactId>
-                <version>LATEST</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+<dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.12.0-RC2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>33.4.0-jre</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs-annotations</artifactId>
-            <version>3.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations-java5</artifactId>
-            <version>24.1.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <scope>provided</scope>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-bom</artifactId>
+            <version>LATEST</version>
+            <type>pom</type>
+            <scope>import</scope>
         </dependency>
     </dependencies>
+</dependencyManagement>
+<dependencies>
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.12.0-RC2</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>33.4.0-jre</version>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>findbugs-annotations</artifactId>
+        <version>3.0.1</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jetbrains</groupId>
+        <artifactId>annotations-java5</artifactId>
+        <version>24.1.0</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.6.3</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+<build>
+    <pluginManagement>
         <plugins>
             <plugin>
-                <groupId>net.md-5</groupId>
-                <artifactId>scriptus</artifactId>
-                <version>0.5.0</version>
-                <configuration>
-                    <format>git:${project.name}:${project.version}:%s:${build.number}</format>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>describe</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Use latest version of the javadoc plugin, fixes some issues with the javadoc tool on recent JDK builds on macOS at least -->
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
-            </plugin>
-            <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.5.0</version>
-                <configuration>
-                    <doclint>none</doclint>
-                </configuration>
+                <version>3.6.3</version>
             </plugin>
-            <!-- Alow manging of import orders to allow avoiding conflicts
-             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.3.1</version>
-                <executions>
-                    <execution>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <configLocation>checkstyle.xml</configLocation>
-                    <includeResources>false</includeResources>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>8.45.1</version>
-                    </dependency>
-                </dependencies>
+        </plugins>
+    </pluginManagement>
+    <plugins>
+        <plugin>
+            <groupId>net.md-5</groupId>
+            <artifactId>scriptus</artifactId>
+            <version>0.5.0</version>
+            <configuration>
+                <format>git:${project.name}:${project.version}:%s:${build.number}</format>
+            </configuration>
+            <executions>
+                <execution>
+                    <phase>initialize</phase>
+                    <goals>
+                        <goal>describe</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+        <!-- Use latest version of the javadoc plugin, fixes some issues with the javadoc tool on recent JDK builds on macOS at least -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.13.0</version>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+                <compilerArgs>
+                    <arg>-XX:+TieredCompilation</arg>
+                    <arg>-XX:TieredStopAtLevel=4</arg>
+                    <arg>-XX:+UseStringDeduplication</arg>
+                    <arg>-XX:+OptimizeStringConcat</arg>
+                    <arg>-XX:+UseG1GC</arg>
+                    <arg>-XX:MaxGCPauseMillis=200</arg>
+                </compilerArgs>
+            </configuration>
+        </plugin>
+        <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.5.0</version>
+            <configuration>
+                <doclint>none</doclint>
+            </configuration>
+        </plugin>
+        <!-- Alow manging of import orders to allow avoiding conflicts
+            <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>3.3.1</version>
+            <executions>
+            <execution>
+            <phase>process-classes</phase>
+            <goals>
+            <goal>check</goal>
+            </goals>
+            </execution>
+            </executions>
+            <configuration>
+            <configLocation>checkstyle.xml</configLocation>
+            <includeResources>false</includeResources>
+            <includeTestSourceDirectory>true</includeTestSourceDirectory>
+            </configuration>
+            <dependencies>
+            <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>8.45.1</version>
+            </dependency>
+            </dependencies>
             </plugin>
-            -->
+        -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -321,9 +333,9 @@
                             </execution>
                         </executions>
                         <!-- Waterfall start: TODO: Just convert this project to gradle.
-                        Maven is a constant source of headaches, especially when we have crud like
-                        lombok inflicted upon the project mangling the build setup. I don't have the will to
-                        figure out where the duplicate artifact is coming from, I cannot reproduce this locally,
+                            Maven is a constant source of headaches, especially when we have crud like
+                            lombok inflicted upon the project mangling the build setup. I don't have the will to
+                            figure out where the duplicate artifact is coming from, I cannot reproduce this locally,
                         and so, we'll just do this for now.-->
                         <configuration>
                             <forceCreation>true</forceCreation>
