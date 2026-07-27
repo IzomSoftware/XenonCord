@@ -16,6 +16,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.unix.DomainSocketAddress;
 import ir.xenoncommunity.XenonCore;
+import ir.xenoncommunity.api.event.ResourcePackSendEvent;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.ServerConnection.KeepAliveData;

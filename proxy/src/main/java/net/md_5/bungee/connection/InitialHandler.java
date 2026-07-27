@@ -22,6 +22,7 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.*;
+import ir.xenoncommunity.api.event.ClientExceptionEvent;
 import ir.xenoncommunity.api.event.PostPlayerHandshakeEvent;
 import net.md_5.bungee.http.HttpClient;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
@@ -131,6 +132,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection {
 
     @Override
     public void exception(Throwable t) throws Exception {
+        ClientExceptionEvent event = new ClientExceptionEvent( this, t );
+        bungee.getPluginManager().callEvent( event );
         if (canSendKickMessage())
             unsafe.sendPacket(new Kick(TextComponent.fromLegacy(ChatColor.RED + Util.exception(t))));
     }

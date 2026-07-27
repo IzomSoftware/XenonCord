@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import ir.xenoncommunity.XenonCore;
+import ir.xenoncommunity.api.event.ClientExceptionEvent;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
@@ -41,6 +42,8 @@ public class UpstreamBridge extends PacketHandler {
 
     @Override
     public void exception(Throwable t) throws Exception {
+        ClientExceptionEvent event = new ClientExceptionEvent( this.con, t );
+        bungee.getPluginManager().callEvent( event );
         con.disconnect(Util.exception(t));
     }
 

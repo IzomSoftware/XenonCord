@@ -44,6 +44,7 @@ public class Configuration implements ProxyConfig {
     private boolean fallback = false;
     private boolean onlineMode = false;
     private boolean encryptInOfflineMode = false;
+    private boolean ignoreSecureProfileForOlderVersions;
     private boolean enforceSecureProfile;
     private int remotePingCache = -1;
     private int playerLimit = -1;
@@ -88,8 +89,10 @@ public class Configuration implements ProxyConfig {
             timeout = adapter.getInt("timeout", timeout);
             uuid = adapter.getString("stats", uuid);
             onlineMode = adapter.getBoolean("online_mode", onlineMode);
-            encryptInOfflineMode = adapter.getBoolean( "encrypt_in_offline_mode", encryptInOfflineMode );
+            encryptInOfflineMode = adapter.getBoolean("encrypt_in_offline_mode", encryptInOfflineMode);
             enforceSecureProfile = adapter.getBoolean("enforce_secure_profile", enforceSecureProfile);
+            ignoreSecureProfileForOlderVersions = adapter.getBoolean("ignore_secure_profile_for_older_versions",
+                    ignoreSecureProfileForOlderVersions);
             remotePingCache = adapter.getInt("remote_ping_cache", remotePingCache);
             playerLimit = adapter.getInt("player_limit", playerLimit);
             serverConnectTimeout = adapter.getInt("server_connect_timeout", serverConnectTimeout);
