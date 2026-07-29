@@ -1,10 +1,3 @@
-/*
-
-CREDITS: KiloSheet
-THANKS FOR SUPPORTING XENON COMMUNITY.
-
- */
-
 package ir.xenoncommunity.module.impl.gui;
 
 import com.sun.management.OperatingSystemMXBean;

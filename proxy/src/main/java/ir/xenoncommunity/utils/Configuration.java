@@ -1,6 +1,9 @@
-package ir.xenoncommunity.utils;
+package ir.xenoncommunity.configuration;
 
 import ir.xenoncommunity.XenonCore;
+import ir.xenoncommunity.utils.Colorize;
+import ir.xenoncommunity.utils.HttpClient;
+import ir.xenoncommunity.utils.Message;
 import lombok.Cleanup;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +28,7 @@ import java.util.regex.Pattern;
 @Getter
 public class Configuration {
     private final File configFile;
+    private final File permissionsFile;
     private final File bstatsFile;
     private final File proxyListFile;
     private final Pattern ipPattern = Pattern.compile("\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b");

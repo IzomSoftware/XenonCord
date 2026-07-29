@@ -28,12 +28,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    private static final io.github.waterfallmc.waterfall.utils.FastException cachedNoSessionException = new io.github.waterfallmc.waterfall.utils.FastException("No Session!");
+    private static final io.github.waterfallmc.waterfall.utils.FastException cachedNoSessionException = new io.github.waterfallmc.waterfall.utils.FastException(
+            "No Session!");
     private final ProxyServer bungee;
     private final ListenerInfo listener;
-    /*========================================================================*/
+    /* ======================================================================== */
     private final Random random = new Random();
-    private final Cache<InetAddress, QuerySession> sessions = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).build();
+    private final Cache<InetAddress, QuerySession> sessions = CacheBuilder.newBuilder()
+            .expireAfterWrite(30, TimeUnit.SECONDS).build();
 
     private void writeShort(ByteBuf buf, int s) {
         buf.writeShortLE(s);
@@ -90,14 +92,16 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket> {
             }
 
             // Waterfall start
-            List<String> players = bungee.getPlayers().stream().map(ProxiedPlayer::getName).collect(Collectors.toList());
+            List<String> players = bungee.getPlayers().stream().map(ProxiedPlayer::getName)
+                    .collect(Collectors.toList());
 
-            String motd = listener.getDefault_bungee_motd();
+            String motd = listener.getMotd();
             motd = ChatColor.translateAlternateColorCodes('&', motd);
 
             ProxyQueryEvent event = new ProxyQueryEvent(listener, new QueryResult(players, motd, "SMP",
                     "Waterfall_Proxy", bungee.getOnlineCount(), listener.getMaxPlayers(),
-                    listener.getHost().getPort(), listener.getHost().getHostString(), "MINECRAFT", bungee.getGameVersion()));
+                    listener.getHost().getPort(), listener.getHost().getHostString(), "MINECRAFT",
+                    bungee.getGameVersion()));
             QueryResult result = bungee.getPluginManager().callEvent(event).getResult();
             // Waterfall end
 
@@ -117,10 +121,9 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket> {
                 // Waterfall end
             } else if (in.readableBytes() == 4) {
                 // Long Response
-                out.writeBytes(new byte[]
-                        {
-                                0x73, 0x70, 0x6C, 0x69, 0x74, 0x6E, 0x75, 0x6D, 0x00, (byte) 0x80, 0x00
-                        });
+                out.writeBytes(new byte[] {
+                        0x73, 0x70, 0x6C, 0x69, 0x74, 0x6E, 0x75, 0x6D, 0x00, (byte) 0x80, 0x00
+                });
                 Map<String, String> data = new LinkedHashMap<>();
 
                 // Waterfall start
@@ -160,7 +163,8 @@ public class QueryHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        bungee.getLogger().log(Level.WARNING, "Error whilst handling query packet from " + ctx.channel().remoteAddress(), cause);
+        bungee.getLogger().log(Level.WARNING,
+                "Error whilst handling query packet from " + ctx.channel().remoteAddress(), cause);
     }
 
     @Data

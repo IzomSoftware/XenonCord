@@ -177,8 +177,8 @@ public class YamlConfig implements ConfigurationAdapter {
         Collection<ListenerInfo> ret = new HashSet<>();
 
         for (Map<String, Object> val : base) {
-            String default_bungee_motd = get("default_bungee_motd", "Another bungee server", val);
-            default_bungee_motd = Message.translateColor(default_bungee_motd);
+            String motd = get("motd", "Another bungee server", val);
+            motd = Message.translateColor(motd);
 
             int maxPlayers = get("max_players", 1, val);
             boolean forceDefault = get("force_default_server", false, val);
@@ -219,7 +219,7 @@ public class YamlConfig implements ConfigurationAdapter {
             }
             set("priorities", serverPriority, val);
 
-            ListenerInfo info = new ListenerInfo(address, default_bungee_motd, maxPlayers, tabListSize, serverPriority, forceDefault, forced, value.toString(), setLocalAddress, pingPassthrough, queryPort, query, proxyProtocol);
+            ListenerInfo info = new ListenerInfo(address, motd, maxPlayers, tabListSize, serverPriority, forceDefault, forced, value.toString(), setLocalAddress, pingPassthrough, queryPort, query, proxyProtocol);
             ret.add(info);
         }
 

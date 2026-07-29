@@ -23,7 +23,7 @@ public class ListenerInfo {
     /**
      * Displayed MOTD.
      */
-    private final String default_bungee_motd;
+    private final String motd;
     /**
      * Max amount of slots displayed on the ping page.
      */
@@ -74,8 +74,11 @@ public class ListenerInfo {
     private final boolean proxyProtocol;
 
     @Deprecated
-    public ListenerInfo(InetSocketAddress host, String bungeemotd, int maxPlayers, int tabListSize, List<String> serverPriority, boolean forceDefault, Map<String, String> forcedHosts, String tabListType, boolean setLocalAddress, boolean pingPassthrough, int queryPort, boolean queryEnabled) {
-        this(host, bungeemotd, maxPlayers, tabListSize, serverPriority, forceDefault, forcedHosts, tabListType, setLocalAddress, pingPassthrough, queryPort, queryEnabled, false);
+    public ListenerInfo(InetSocketAddress host, String bungeemotd, int maxPlayers, int tabListSize,
+            List<String> serverPriority, boolean forceDefault, Map<String, String> forcedHosts, String tabListType,
+            boolean setLocalAddress, boolean pingPassthrough, int queryPort, boolean queryEnabled) {
+        this(host, bungeemotd, maxPlayers, tabListSize, serverPriority, forceDefault, forcedHosts, tabListType,
+                setLocalAddress, pingPassthrough, queryPort, queryEnabled, false);
     }
 
     /**

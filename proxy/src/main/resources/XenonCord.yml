@@ -1,20 +1,4 @@
-# =============================================================
-#                   XenonCord Configuration
-# =============================================================
 
-# General Proxy Settings
-general:
-  debug: true
-  # This option may be a little weird to you, but it's basically something to bother scanners/bots.
-  # This options setIgnore suspicious connections instead of just setCancelling them.
-  # Which makes a scanner believe that the server is either offline, or either
-  # There's no Minecraft server running here.
-  # combined with ip/domain whitelist module, and a good firewall configuration, it would piss off scanners badly.
-  bother_suspicious_connections: true
-  whitelist:
-    ips:
-      - "127.0.0.1"
-    users: []
   
 # Command and System Messages
 messages:
