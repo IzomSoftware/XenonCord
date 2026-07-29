@@ -60,7 +60,8 @@ public class Util {
      * @param i the integer to format
      * @return the hex representation of the integer
      */
-    public static String hex(int i) {
+    public static String hex(int i)
+    {
         return Hex.encodeString(Ints.toByteArray(i));
     }
 
@@ -97,7 +98,7 @@ public class Util {
         // TODO: We should use clear manually written exceptions
         StackTraceElement[] trace = t.getStackTrace();
         return t.getClass().getSimpleName() + " : " + t.getMessage()
-                + ((includeLineNumbers && trace.length > 0) ? " @ " + t.getStackTrace()[0].getClassName() + ":" + t.getStackTrace()[0].getLineNumber() : "");
+            + ((includeLineNumbers && trace.length > 0) ? " @ " + t.getStackTrace()[0].getClassName() + ":" + t.getStackTrace()[0].getLineNumber() : "");
     }
 
     public static String csv(Iterable<?> objects) {
@@ -145,5 +146,5 @@ public class Util {
         }
         return ret;
     }
-    // Waterfall end: Forwarding rework 
+    // Waterfall end: Forwarding rework
 }
