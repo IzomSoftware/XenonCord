@@ -77,6 +77,10 @@ public class ServerConnector extends PacketHandler {
             }
         }
 
+        if (user.getSettings() != null) {
+                ch.write(user.getSettings());
+        }
+
         final Queue<DefinedPacket> packetQueue = target.getPacketQueue();
 
         synchronized (packetQueue) {

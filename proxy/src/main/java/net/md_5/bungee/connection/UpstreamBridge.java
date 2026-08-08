@@ -305,6 +305,10 @@ public class UpstreamBridge extends PacketHandler {
                 ch.write(con.getPendingConnection().getBrandMessage());
             }
 
+            if (con.getSettings() != null) {
+                ch.write(con.getSettings());
+            }
+
             con.getServer().sendQueuedPackets();
 
             throw CancelSendSignal.INSTANCE;
