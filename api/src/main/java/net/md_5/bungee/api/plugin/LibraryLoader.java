@@ -119,7 +119,7 @@ class LibraryLoader {
             });
         }
 
-        URLClassLoader loader = new URLClassLoader( jarFiles.toArray( URL[]::new ), getClass().getClassLoader() )
+        URLClassLoader loader = new URLClassLoader(jarFiles.toArray(new URL[0]),  getClass().getClassLoader());
 
         return loader;
     }
