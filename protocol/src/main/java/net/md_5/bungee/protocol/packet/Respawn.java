@@ -21,8 +21,8 @@ public class Respawn extends DefinedPacket {
     private String worldName;
     private long seed;
     private short difficulty;
-    private short gameMode;
-    private short previousGameMode;
+    private int gameMode;
+    private int previousGameMode;
     private String levelType;
     private boolean debug;
     private boolean flat;
@@ -52,9 +52,17 @@ public class Respawn extends DefinedPacket {
         if (protocolVersion < ProtocolConstants.MINECRAFT_1_14) {
             difficulty = buf.readUnsignedByte();
         }
-        gameMode = buf.readUnsignedByte();
+        if (protocolVersion >= ProtocolConstants.MINECRAFT_26_3) {
+            gameMode = readVarInt(buf);
+        } else {
+            gameMode = buf.readUnsignedByte();
+        }
         if (protocolVersion >= ProtocolConstants.MINECRAFT_1_16) {
-            previousGameMode = buf.readUnsignedByte();
+            if (protocolVersion >= ProtocolConstants.MINECRAFT_26_3) {
+                previousGameMode = readVarInt(buf);
+            } else {
+                previousGameMode = buf.readUnsignedByte();
+            }
             debug = buf.readBoolean();
             flat = buf.readBoolean();
             if (protocolVersion < ProtocolConstants.MINECRAFT_1_20_2) {
@@ -100,9 +108,17 @@ public class Respawn extends DefinedPacket {
         if (protocolVersion < ProtocolConstants.MINECRAFT_1_14) {
             buf.writeByte(difficulty);
         }
-        buf.writeByte(gameMode);
+        if (protocolVersion >= ProtocolConstants.MINECRAFT_26_3) {
+            writeVarInt(gameMode, buf);
+        } else {
+            buf.writeByte(gameMode);
+        }
         if (protocolVersion >= ProtocolConstants.MINECRAFT_1_16) {
-            buf.writeByte(previousGameMode);
+            if (protocolVersion >= ProtocolConstants.MINECRAFT_26_3) {
+                writeVarInt(previousGameMode, buf);
+            } else {
+                buf.writeByte(previousGameMode);
+            }
             buf.writeBoolean(debug);
             buf.writeBoolean(flat);
             if (protocolVersion < ProtocolConstants.MINECRAFT_1_20_2) {
