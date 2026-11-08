@@ -104,7 +104,7 @@ class LibraryLoader {
 
         List<URL> jarFiles = new ArrayList<>();
         for (ArtifactResult artifact : result.getArtifactResults()) {
-            Path file = artifact.getArtifact().getPath();
+            Path file = artifact.getArtifact().getFile().toPath();
 
             URL url;
             try {
