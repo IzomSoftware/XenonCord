@@ -52,31 +52,38 @@ class LibraryLoader {
         this.session = MavenRepositorySystemUtils.newSession();
 
         session.setChecksumPolicy(RepositoryPolicy.CHECKSUM_POLICY_FAIL);
-        session.setLocalRepositoryManager(repository.newLocalRepositoryManager(session, new LocalRepository("libraries")));
+        session.setLocalRepositoryManager(
+                repository.newLocalRepositoryManager(session, new LocalRepository("libraries")));
         session.setTransferListener(new AbstractTransferListener() {
             @Override
             public void transferStarted(TransferEvent event) throws TransferCancelledException {
-                logger.log(Level.INFO, "Downloading {0}", event.getResource().getRepositoryUrl() + event.getResource().getResourceName());
+                logger.log(Level.INFO, "Downloading {0}",
+                        event.getResource().getRepositoryUrl() + event.getResource().getResourceName());
             }
         });
 
         // SPIGOT-7638: Add system properties,
-        // since JdkVersionProfileActivator needs 'java.version' when a profile has the 'jdk' element
-        // otherwise it will silently fail and not resolves the dependencies in the affected pom.
+        // since JdkVersionProfileActivator needs 'java.version' when a profile has the
+        // 'jdk' element
+        // otherwise it will silently fail and not resolves the dependencies in the
+        // affected pom.
         session.setSystemProperties(System.getProperties());
         session.setReadOnly();
 
-        this.repositories = repository.newResolutionRepositories( session, Arrays.asList( new RemoteRepository.Builder( "central", "default", System.getProperty( REPOSITORY_PROPERTY, "https://repo.maven.apache.org/maven2" ) ).build() ) );
+        this.repositories = repository
+                .newResolutionRepositories(session,
+                        Arrays.asList(new RemoteRepository.Builder("central", "default",
+                                System.getProperty(REPOSITORY_PROPERTY, "https://repo.maven.apache.org/maven2"))
+                                .build()));
     }
 
     public ClassLoader createLoader(PluginDescription desc) {
         if (desc.getLibraries().isEmpty()) {
             return null;
         }
-        logger.log(Level.INFO, "[{0}] Loading {1} libraries... please wait", new Object[]
-                {
-                        desc.getName(), desc.getLibraries().size()
-                });
+        logger.log(Level.INFO, "[{0}] Loading {1} libraries... please wait", new Object[] {
+                desc.getName(), desc.getLibraries().size()
+        });
 
         List<Dependency> dependencies = new ArrayList<>();
         for (String library : desc.getLibraries()) {
@@ -88,7 +95,8 @@ class LibraryLoader {
 
         DependencyResult result;
         try {
-            result = repository.resolveDependencies(session, new DependencyRequest(new CollectRequest((Dependency) null, dependencies, repositories), null));
+            result = repository.resolveDependencies(session,
+                    new DependencyRequest(new CollectRequest((Dependency) null, dependencies, repositories), null));
         } catch (DependencyResolutionException ex) {
             throw new RuntimeException("Error resolving libraries", ex);
         }
@@ -105,13 +113,13 @@ class LibraryLoader {
             }
 
             jarFiles.add(url);
-            logger.log(Level.INFO, "[{0}] Loaded library {1}", new Object[]
-                    {
-                            desc.getName(), file
-                    });
+            logger.log(Level.INFO, "[{0}] Loaded library {1}", new Object[] {
+                    desc.getName(), file
+            });
         }
 
-        URLClassLoader loader = new URLClassLoader(jarFiles.toArray(new URL[0]));
+        URLClassLoader loader = new URLClassLoader(jarFiles.toArray(new URL[jarFiles.size()]),
+                getClass().getClassLoader());
 
         return loader;
     }
