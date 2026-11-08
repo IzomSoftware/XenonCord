@@ -27,6 +27,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -103,11 +104,11 @@ class LibraryLoader {
 
         List<URL> jarFiles = new ArrayList<>();
         for (ArtifactResult artifact : result.getArtifactResults()) {
-            File file = artifact.getArtifact().getFile();
+            Path file = artifact.getArtifact().getPath();
 
             URL url;
             try {
-                url = file.toURI().toURL();
+                url = file.toUri().toURL();
             } catch (MalformedURLException ex) {
                 throw new AssertionError(ex);
             }
